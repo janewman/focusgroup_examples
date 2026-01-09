@@ -3,23 +3,27 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Scoped Focusgroup Examples</title>
+  <title>Focusgroup Examples</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <header>
-    <h1>Scoped Focusgroup: Interactive Examples</h1>
+    <h1>Focusgroup: Interactive Examples</h1>
     <p>
       This page demonstrates the ideas in the Open UI
-      <a href="https://open-ui.org/components/scoped-focusgroup.explainer/" target="_blank" rel="noopener">Scoped Focusgroup explainer</a>.
+      <a href="https://open-ui.org/components/scoped-focusgroup.explainer/" target="_blank" rel="noopener">Focusgroup explainer</a>.
       It includes interactive widgets that rely on the browser’s native <code>focusgroup</code> implementation for directional focus.
     </p>
   </header>
 
   <main>
-    <details class="toc" aria-label="Examples navigation" open>
-      <summary>Quick Navigation</summary>
+    <nav class="toc" aria-label="Examples navigation">
       <ul class="list-reset" focusgroup="menu block" aria-label="Table of contents">
+        <li><a href="#intro-title" class="nav-title">What is a Focusgroup?</a></li>
+        <li><a href="#memory-title">Memory vs Entry Priority</a></li>
+        <li><a href="#inference-title">Role Inference</a></li>
+        <li><a href="#descendants-title">Descendant Navigation</a></li>
+        <li><a href="#backward-title">Backward Navigation</a></li>
         <li><a href="#basic-list-title">Basic Toolbar</a></li>
         <li><a href="#vertical-list-title">Vertical Menu</a></li>
         <li><a href="#wrapping-title">Wrapping Tablist</a></li>
@@ -27,19 +31,14 @@
         <li><a href="#optout-title">Opt-out Barriers</a></li>
         <li><a href="#readingflow-title">Reading-Flow Navigation</a></li>
         <li><a href="#radiogroup-title">Radiogroup</a></li>
-        <li><a href="#shadow-title">Shadow DOM Participation</a></li>
-        <li><a href="#memory-title">Memory vs Entry Priority</a></li>
-        <li><a href="#inference-title">Role Inference</a></li>
-        <li><a href="#menubar-title">Menubar + Popovers</a></li>
-        <li><a href="#descendants-title">Descendant Navigation</a></li>
-        <li><a href="#backward-title">Backward Navigation</a></li>
       </ul>
-    </details>
+    </nav>
+    <div class="content">
     <section aria-labelledby="intro-title">
       <h2 id="intro-title">What is a Focusgroup?</h2>
       <p>
-        A focusgroup is a scope within the DOM where keyboard focus travels predictably among items using arrow keys and other controls.
-        Typical patterns include menus, tablists, toolbars, and radiogroups. These examples use the <code>focusgroup</code> attribute directly and do not include a polyfill.
+        The <code>focusgroup</code> attribute standardizes the "roving tabindex" pattern, enabling directional arrow-key navigation between focusable items in a container without requiring custom JavaScript.
+        It handles focus management, memory, and wrapping behaviors declaratively.
       </p>
       <p class="muted">
         Note: The feature may be behind experimental flags or under active development; behavior depends on your browser’s implementation.
@@ -47,42 +46,59 @@
     </section>
 
     <section aria-labelledby="memory-title" class="example">
-      <h2 id="memory-title">Example 1: Memory vs Entry Priority</h2>
-      <p>Focus memory takes precedence over entry priority unless <code>no-memory</code> is set.</p>
+      <h2 id="memory-title">Memory vs Entry Priority</h2>
+      <p>
+        By default, focusgroups maintain a "memory" of the last-focused element. When you re-enter the group via Tab, focus returns to where you left off.
+        The <code>focusgroup-entry-priority</code> attribute defines the initial entry point when no memory exists.
+      </p>
+
+      <h3>With Memory (Default)</h3>
+      <p>
+        1. Click "Last" to set focus there, establishing memory.<br>
+        2. Press Tab to leave the group.<br>
+        3. Press Shift+Tab to return. Focus restores to "Last," ignoring the "Entry Priority" attribute because memory takes precedence.
+      </p>
       <div focusgroup="toolbar inline" aria-label="Memory demo">
         <button>First</button>
         <button focusgroup-entry-priority>Entry Priority</button>
         <button>Last</button>
       </div>
-      <details class="explain">
-        <summary>Try this</summary>
-        <ul>
-          <li>Tab into the group: focus goes to “Entry Priority”.</li>
-          <li>Use arrows to move to “Last”, then Tab away and Shift+Tab back: focus restores to “Last”.</li>
-          <li>Change to <code>focusgroup="toolbar inline no-memory"</code> to always enter via “Entry Priority”.</li>
-        </ul>
-        <pre><code>&lt;div focusgroup="toolbar inline" aria-label="Memory demo"&gt;
-  &lt;button&gt;First&lt;/button&gt;
-  &lt;button focusgroup-entry-priority&gt;Entry Priority&lt;/button&gt;
-  &lt;button&gt;Last&lt;/button&gt;
-&lt;/div&gt;</code></pre>
-      </details>
-    </section>
 
-    <section aria-labelledby="inference-title" class="example">
-      <h2 id="inference-title">Example 2: Role Inference (Mixed)</h2>
-      <p>Behavior tokens can map a minimum role and infer child roles when compatible and not explicit.</p>
-      <div id="inference-demo" focusgroup="menu inline wrap" aria-label="Formatting">
-        <div tabindex=0 focusgroup-entry-priority>Bold</div>
-        <button role="menuitemcheckbox" aria-checked="true">Italic</button>
-        <div tabindex=0 >Underline</div>
+      <h3>With No Memory</h3>
+      <p>
+        The <code>no-memory</code> token disables focus restoration.<br>
+        1. Click "Last".<br>
+        2. Tab away and Shift+Tab back.<br>
+        3. Focus always resets to "Entry Priority," as the group refuses to remember your previous position.
+      </p>
+      <div focusgroup="toolbar inline no-memory" aria-label="No memory demo">
+        <button>First</button>
+        <button focusgroup-entry-priority>Entry Priority</button>
+        <button>Last</button>
       </div>
     </section>
 
-    
+    <section aria-labelledby="inference-title" class="example">
+      <h2 id="inference-title">Role Inference</h2>
+      <p>
+        To reduce boilerplate, <code>focusgroup</code> can infer ARIA roles for generic children based on the container's behavior token.
+        Below, generic <code>&lt;div&gt;</code> elements automatically become <code>menuitem</code>s because they are in a <code>menu</code> focusgroup.
+        Explicit roles (like the "Cut" button) are preserved.
+      </p>
+      <div focusgroup="menu inline wrap" aria-label="Edit actions">
+        <div class="item" tabindex="0" focusgroup-entry-priority>Copy</div>
+        <button role="menuitem">Cut</button>
+        <div class="item" tabindex="0">Paste</div>
+      </div>
+    </section>
+
+
     <section aria-labelledby="descendants-title" class="example">
-      <h2 id="descendants-title">Example 3: Descendant Navigation</h2>
-      <p>Arrow keys navigate focusable descendants even when nested in non-focusable wrappers.</p>
+      <h2 id="descendants-title">Descendant Navigation</h2>
+      <p>
+        Focusgroup definitions apply to the entire subtree (shadow-inclusive).
+        You do not need to wrap every item directly; the focusgroup finds all valid candidates (alpha, beta, gamma) even though they are nested deep within other structural markup.
+      </p>
       <div focusgroup="toolbar inline" aria-label="Nested wrappers">
         <div>
           <span><button>Alpha</button></span>
@@ -93,15 +109,28 @@
     </section>
 
     <section aria-labelledby="backward-title" class="example">
-      <h2 id="backward-title">Example 4: Backward Navigation</h2>
-      <p>Use Shift+Tab to enter the previous segment and observe memory vs entry-priority.</p>
-      <p class="muted">Tip: Try this in the “Opt-out Barriers” example above to see segment selection on Shift+Tab.</p>
+      <h2 id="backward-title">Consistent Entry Direction</h2>
+      <p>
+        Unlike standard tab navigation where Shift+Tab lands on the last element, a <code>focusgroup</code> provides a single, consistent entry point regardless of approach direction.
+        If you Shift+Tab into this toolbar from the bottom input, focus will land on "Middle" (Entry Priority) or the stored memory, not "Right".
+      </p>
+      <div style="display: flex; gap: 1rem; align-items: center;">
+        <input type="text" placeholder="Start here" style="padding: .5rem;">
+        <div focusgroup="toolbar inline no-memory" aria-label="Backward demo">
+          <button>Left</button>
+          <button focusgroup-entry-priority>Middle (Entry)</button>
+          <button>Right</button>
+        </div>
+        <input type="text" placeholder="Shift+Tab from here" style="padding: .5rem;">
+      </div>
     </section>
 
     <section aria-labelledby="basic-list-title" class="example">
-      <h2 id="basic-list-title">Example 5: Basic Horizontal List (Toolbar)</h2>
+      <h2 id="basic-list-title">Guaranteed Tab Stop (Toolbar)</h2>
       <p>
-        Arrow keys move focus left/right within the group; Tab exits the group.
+        The <code>toolbar</code> token creates a single "Guaranteed Tab Stop" for the entire group.
+        Even though there are four buttons, pressing Tab only stops once on the group.
+        Arrow keys (Left/Right) navigate internally. This reduces "tab fatigue" for users.
       </p>
       <div focusgroup="toolbar inline" aria-label="Text formatting">
         <button type="button">Bold</button>
@@ -112,32 +141,39 @@
     </section>
 
     <section aria-labelledby="vertical-list-title" class="example">
-      <h2 id="vertical-list-title">Example 6: Vertical List (Menu)</h2>
-      <p>Use Up/Down arrows to move.</p>
+      <h2 id="vertical-list-title">Vertical List (Axis Locking)</h2>
+      <p>
+        The <code>block</code> token restricts navigation to the vertical axis (Up/Down Arrow).
+        Left/Right keys are ignored by the focusgroup, allowing them to perform other actions (like opening submenus) without moving focus, although default actions depend on the specific role.
+      </p>
       <div focusgroup="menu block" aria-label="File actions">
         <div class="item" tabindex="0">New</div>
         <div class="item" tabindex="0">Open…</div>
         <div class="item" tabindex="0">Save</div>
         <div class="item" tabindex="0">Exit</div>
       </div>
-    
     </section>
 
     <section aria-labelledby="wrapping-title" class="example">
-      <h2 id="wrapping-title">Example 7: Wrapping Tablist</h2>
-      <p>Arrow keys wrap from end to start and vice versa.</p>
+      <h2 id="wrapping-title">Wrapping Tablist</h2>
+      <p>
+        By default, focus stops at the edges of the group.
+        Adding the <code>wrap</code> token creates a continuous loop: pressing Right Arrow on the last item jumps to the first, and vice versa.
+      </p>
       <div focusgroup="tablist inline wrap no-memory" aria-label="Sections">
         <button role="tab" type="button" aria-selected="true" focusgroup-entry-priority>Overview</button>
         <button role="tab" type="button" aria-selected="false">Specs</button>
         <button role="tab" type="button" aria-selected="false">Examples</button>
         <button role="tab" type="button" aria-selected="false">FAQ</button>
       </div>
-     
     </section>
 
     <section aria-labelledby="nested-title" class="example">
-      <h2 id="nested-title">Example 8: Nested Focusgroups</h2>
-      <p>Main toolbar with a nested formatting toolbar; each is independent.</p>
+      <h2 id="nested-title">Nested Focusgroups</h2>
+      <p>
+        Focusgroups can be nested. The inner "Formatting" toolbar is an independent focusgroup.
+        When you enter it, arrow keys cycle <em>only</em> within that inner group. You must use Tab to exit the inner group and return to the outer "Main" toolbar flow.
+      </p>
       <div focusgroup="toolbar inline" aria-label="Main toolbar">
         <button type="button">Save</button>
         <button type="button" focusgroup-entry-priority>Print</button>
@@ -157,8 +193,12 @@
     </section>
 
     <section aria-labelledby="optout-title" class="example">
-      <h2 id="optout-title">Example 9: Opt-out Barriers</h2>
-      <p>Subtrees with <code>focusgroup="none"</code> split the focusgroup into segments for Tab/Shift+Tab; arrow keys skip them.</p>
+      <h2 id="optout-title">Focusgroup Segments (Opt-out)</h2>
+      <p>
+        Elements with <code>focusgroup="none"</code> split the focusgroup into separate "segments".
+        <strong>Arrow keys</strong> skip over the opted-out section entirely (jumping from "Save" to "Close").
+        <strong>Tab keys</strong>, however, treat the opted-out section as interactive content, stopping at "Help" and "Shortcuts" sequentially.
+      </p>
       <div focusgroup="toolbar inline wrap" aria-label="Document toolbar">
         <button>New</button>
         <button focusgroup-entry-priority>Open</button>
@@ -175,8 +215,12 @@
     </section>
 
     <section aria-labelledby="readingflow-title" class="example">
-      <h2 id="readingflow-title">Example 10: Reading-Flow Navigation</h2>
-      <p>When supported, arrow keys follow visual order established by <em>reading-flow</em> or explicit visual reordering.</p>
+      <h2 id="readingflow-title">Visual Reading Flow</h2>
+      <p>
+        Focusgroup respects the CSS visual order, not just the DOM order.
+        Here, <code>flex-direction: row-reverse</code> flips the visual display (C, B, A).
+        Pressing the <strong>Right Arrow</strong> moves focus visually to the right (C -> B -> A), matching user expectation rather than source code order.
+      </p>
       <div focusgroup="toolbar" aria-label="Visual order toolbar" class="visual-reorder" style="reading-flow:flex-visual;">
         <button>A</button>
         <button>B</button>
@@ -185,18 +229,23 @@
     </section>
 
     <section aria-labelledby="radiogroup-title" class="example">
-      <h2 id="radiogroup-title">Example 11: Radiogroup (Navigation Only)</h2>
-      <p>Directional focus is decoupled from selection; arrow keys move among radios without changing state here.</p>
+      <h2 id="radiogroup-title">Radiogroup (Navigation Only)</h2>
+      <p>
+        The <code>focusgroup</code> attribute manages <strong>navigation only</strong>, not selection.
+        Unlike a native <code>&lt;input type="radio"&gt;</code>, moving check status does not automatically follow focus.
+        Authors must implement "selection follows focus" manually if desired; distinct separation allows valid patterns like "Manual Activation" tabs or mixed-state toolbars.
+      </p>
       <div focusgroup="radiogroup inline" aria-label="Text alignment">
         <button role="radio" aria-checked="true">Left</button>
         <button role="radio" aria-checked="false">Center</button>
         <button role="radio" aria-checked="false">Right</button>
       </div>
     </section>
+    </div>
   </main>
 
   <footer>
-    <p>Built for demonstration only; not a reccomendation</p>
+    <p>Built for demonstration only; not a recommendation</p>
   </footer>
   <script src="scripts.js"></script>
 </body>

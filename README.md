@@ -1,6 +1,15 @@
-# Scoped Focusgroup Examples
+# Focusgroup Examples
 
-Interactive examples inspired by the Open UI explainer for Scoped Focusgroup: https://open-ui.org/components/scoped-focusgroup.explainer/
+Interactive examples inspired by the Open UI explainer for Focusgroup: https://open-ui.org/components/scoped-focusgroup.explainer/
+
+## Browser Requirements
+
+To use the browser's `focusgroup` implementation, please ensure you are on a **Chromium-based browser (version 144+)** and have the following flag enabled:
+`chrome://flags/#enable-experimental-web-platform-features`
+
+## Source Code
+
+For the best context when viewing these examples, please refer to the [source file](https://github.com/janewman/focusgroup_examples/blob/main/index.html) to see the implementation details.
 
 ## Contents
 - index.html — examples and explanations
