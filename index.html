@@ -10,243 +10,529 @@
   <header>
     <h1>Focusgroup: Interactive Examples</h1>
     <p>
-      This page demonstrates the ideas in the Open UI
-      <a href="https://open-ui.org/components/scoped-focusgroup.explainer/" target="_blank" rel="noopener">Focusgroup explainer</a>.
-      It includes interactive widgets that rely on the browser’s native <code>focusgroup</code> implementation for directional focus.
+      The <code>focusgroup</code> attribute provides declarative keyboard navigation for composite widgets like toolbars, menus, and tablists.
+      It implements the "roving tabindex" pattern natively—no JavaScript required for focus management.
+    </p>
+    <p class="muted">
+      Based on the Open UI <a href="https://open-ui.org/components/scoped-focusgroup.explainer/" target="_blank" rel="noopener">Focusgroup explainer</a>.
+      May require experimental browser flags.
     </p>
   </header>
 
   <main>
     <nav class="toc" aria-label="Examples navigation">
       <ul class="list-reset" focusgroup="menu block" aria-label="Table of contents">
-        <li><a href="#intro-title" class="nav-title">What is a Focusgroup?</a></li>
-        <li><a href="#memory-title">Memory vs Entry Priority</a></li>
-        <li><a href="#inference-title">Role Inference</a></li>
-        <li><a href="#descendants-title">Descendant Navigation</a></li>
-        <li><a href="#backward-title">Backward Navigation</a></li>
-        <li><a href="#basic-list-title">Basic Toolbar</a></li>
-        <li><a href="#vertical-list-title">Vertical Menu</a></li>
-        <li><a href="#wrapping-title">Wrapping Tablist</a></li>
+        <li><a href="#basic-title" class="nav-title">Basic Usage</a></li>
+        <li><a href="#quickstart-title">Quick Start</a></li>
+        <li><a href="#behaviors-title">Behavior Tokens</a></li>
+        <li><a href="#features-title" class="nav-title">Core Features</a></li>
+        <li><a href="#tabstop-title">Guaranteed Tab Stop</a></li>
+        <li><a href="#memory-title">Focus Memory</a></li>
+        <li><a href="#wrapping-title">Wrapping</a></li>
+        <li><a href="#axis-title">Axis Locking</a></li>
+        <li><a href="#advanced-title" class="nav-title">Advanced Usage</a></li>
         <li><a href="#nested-title">Nested Focusgroups</a></li>
-        <li><a href="#optout-title">Opt-out Barriers</a></li>
-        <li><a href="#readingflow-title">Reading-Flow Navigation</a></li>
-        <li><a href="#radiogroup-title">Radiogroup</a></li>
+        <li><a href="#optout-title">Opt-out Segments</a></li>
+        <li><a href="#inference-title">Role Inference</a></li>
+        <li><a href="#menubar-title">Menus &amp; Submenus</a></li>
+        <li><a href="#readingflow-title">Reading Flow</a></li>
       </ul>
     </nav>
-    <div class="content">
-    <section aria-labelledby="intro-title">
-      <h2 id="intro-title">What is a Focusgroup?</h2>
+    <div class="content" focusgroup="toolbar block" aria-label="Page sections">
+
+    <!-- ============================================ -->
+    <!-- SECTION 1: BASIC USAGE -->
+    <!-- ============================================ -->
+    <section aria-labelledby="basic-title">
+      <h2 id="basic-title" tabindex="0">Basic Usage</h2>
       <p>
-        The <code>focusgroup</code> attribute standardizes the "roving tabindex" pattern, enabling directional arrow-key navigation between focusable items in a container without requiring custom JavaScript.
-        It handles focus management, memory, and wrapping behaviors declaratively.
+        Add the <code>focusgroup</code> attribute to a container to enable arrow-key navigation between its focusable children.
+        The group becomes a single tab stop, with arrow keys moving focus within.
       </p>
-      <p class="muted">
-        Note: The feature may be behind experimental flags or under active development; behavior depends on your browser’s implementation.
+    </section>
+
+    <!-- ============================================ -->
+    <!-- QUICK START -->
+    <!-- ============================================ -->
+    <section aria-labelledby="quickstart-title" class="example">
+      <h2 id="quickstart-title" tabindex="0">Quick Start</h2>
+      <div focusgroup="none">
+        <p>
+          <strong>Try it:</strong> Tab to this toolbar, then use Left/Right arrows to move between buttons.
+        </p>
+        <div class="demo">
+          <code class="attr-label">focusgroup="toolbar inline"</code>
+          <div focusgroup="toolbar inline" aria-label="Text formatting">
+            <button type="button">Bold</button>
+            <button type="button">Italic</button>
+            <button type="button">Underline</button>
+            <button type="button">Strike</button>
+          </div>
+        </div>
+        <p>
+          The entire toolbar is one tab stop. Arrow keys navigate within. No JavaScript needed.
+        </p>
+
+        <h3>Syntax</h3>
+        <pre><code>&lt;div focusgroup="behavior [inline|block] [wrap] [no-memory]"&gt;
+  &lt;button&gt;Item 1&lt;/button&gt;
+  &lt;button focusgroupstart&gt;Item 2 (entry point)&lt;/button&gt;
+  &lt;button&gt;Item 3&lt;/button&gt;
+&lt;/div&gt;</code></pre>
+
+        <table class="token-table">
+          <thead>
+            <tr><th>Token</th><th>Required</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>behavior</code></td><td>Yes</td><td>Widget pattern: <code>toolbar</code>, <code>tablist</code>, <code>menu</code>, <code>menubar</code>, <code>radiogroup</code>, <code>listbox</code></td></tr>
+            <tr><td><code>inline</code> / <code>block</code></td><td>No</td><td>Restrict navigation to horizontal or vertical axis</td></tr>
+            <tr><td><code>wrap</code></td><td>No</td><td>Loop from end to start (and vice versa)</td></tr>
+            <tr><td><code>no-memory</code></td><td>No</td><td>Don't restore last-focused item on re-entry</td></tr>
+          </tbody>
+        </table>
+
+        <p>
+          Use <code>focusgroupstart</code> on a child element to specify where focus lands when entering the group.
+        </p>
+      </div>
+    </section>
+
+    <!-- ============================================ -->
+    <!-- BEHAVIOR TOKENS -->
+    <!-- ============================================ -->
+    <section aria-labelledby="behaviors-title" class="example">
+      <h2 id="behaviors-title" tabindex="0">Behavior Tokens</h2>
+      <div focusgroup="none">
+        <p>
+          The behavior token determines the widget pattern and enables automatic ARIA role inference for generic children.
+        </p>
+
+        <h3>Toolbar</h3>
+        <p>General-purpose horizontal or vertical toolbar. No child role inference.</p>
+        <p><strong>Try it:</strong> Tab to this toolbar, then use Left/Right arrows to move between buttons.</p>
+        <div class="demo">
+          <div focusgroup="toolbar inline" aria-label="Document actions">
+            <button type="button">New</button>
+            <button type="button">Open</button>
+            <button type="button">Save</button>
+            <button type="button">Print</button>
+          </div>
+        </div>
+
+        <h3>Tablist</h3>
+        <p>Tab controls. Generic children infer <code>role="tab"</code>. Typically used with <code>inline wrap no-memory</code>.</p>
+        <p><strong>Try it:</strong> Tab to this tablist, then use Left/Right arrows. Notice wrapping from "FAQ" back to "Overview".</p>
+        <div class="demo">
+          <code class="attr-label">focusgroup="tablist inline wrap no-memory"</code>
+          <div focusgroup="tablist inline wrap no-memory" aria-label="Sections">
+            <button role="tab" type="button" aria-selected="true" focusgroupstart>Overview</button>
+            <button role="tab" type="button" aria-selected="false">Specs</button>
+            <button role="tab" type="button" aria-selected="false">Examples</button>
+            <button role="tab" type="button" aria-selected="false">FAQ</button>
+          </div>
+        </div>
+
+        <h3>Menu</h3>
+        <p>Vertical menu. Generic children infer <code>role="menuitem"</code>. Typically used with <code>block</code>.</p>
+        <p><strong>Try it:</strong> Tab to this menu, then use Up/Down arrows to move between items.</p>
+        <div class="demo">
+          <code class="attr-label">focusgroup="menu block"</code>
+          <div focusgroup="menu block" aria-label="File actions">
+            <div class="item" tabindex="0">New</div>
+            <div class="item" tabindex="0">Open…</div>
+            <div class="item" tabindex="0">Save</div>
+            <div class="item" tabindex="0">Exit</div>
+          </div>
+        </div>
+
+        <h3>Radiogroup</h3>
+        <p>
+          Radio button group. Generic children infer <code>role="radio"</code>.
+          Focusgroup handles navigation only—selection state must be managed separately.
+        </p>
+        <p><strong>Try it:</strong> Tab to this radiogroup, then use Left/Right arrows to move between options.</p>
+        <div class="demo">
+          <code class="attr-label">focusgroup="radiogroup inline"</code>
+          <div focusgroup="radiogroup inline" aria-label="Text alignment" class="radio-group">
+            <button role="radio" aria-checked="true" class="radio-option"><span class="radio-indicator"></span> Left</button>
+            <button role="radio" aria-checked="false" class="radio-option"><span class="radio-indicator"></span> Center</button>
+            <button role="radio" aria-checked="false" class="radio-option"><span class="radio-indicator"></span> Right</button>
+          </div>
+        </div>
+
+        <h3>Listbox</h3>
+        <p>
+          Selectable list. Generic children infer <code>role="option"</code>.
+          Selection state must be managed by author code.
+        </p>
+        <p><strong>Try it:</strong> Tab to this listbox, then use Up/Down arrows to move between options.</p>
+        <div class="demo">
+          <code class="attr-label">focusgroup="listbox block"</code>
+          <div focusgroup="listbox block" aria-label="Favorite fruit" class="listbox">
+            <div class="listbox-option" tabindex="0" role="option" aria-selected="true">Apple</div>
+            <div class="listbox-option" tabindex="0" role="option" aria-selected="false">Banana</div>
+            <div class="listbox-option" tabindex="0" role="option" aria-selected="false">Cherry</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================ -->
+    <!-- SECTION 2: CORE FEATURES -->
+    <!-- ============================================ -->
+    <section aria-labelledby="features-title">
+      <h2 id="features-title" tabindex="0">Core Features</h2>
+      <p>
+        Every focusgroup provides these capabilities automatically.
       </p>
+    </section>
+
+    <section aria-labelledby="tabstop-title" class="example">
+      <h2 id="tabstop-title" tabindex="0">Guaranteed Tab Stop</h2>
+      <div focusgroup="none">
+        <p>
+          A focusgroup collapses all its items into a single tab stop, regardless of how many focusable elements it contains.
+          This reduces "tab fatigue" and matches expected behavior for composite widgets.
+        </p>
+        <p>
+          <strong>Try it:</strong> Tab through this page. The toolbar below is one tab stop, not four.
+        </p>
+        <div class="demo">
+          <code class="attr-label">focusgroup="toolbar inline"</code>
+          <div focusgroup="toolbar inline" aria-label="Document actions">
+            <button type="button">New</button>
+            <button type="button">Open</button>
+            <button type="button">Save</button>
+            <button type="button">Print</button>
+          </div>
+        </div>
+
+        <h3>Consistent Entry Point</h3>
+        <p>
+          Whether you Tab forward or Shift+Tab backward into a focusgroup, focus lands on the same element.
+          Use <code>focusgroupstart</code> to specify which element that should be.
+        </p>
+        <div class="demo">
+          <code class="attr-label">focusgroup="toolbar inline no-memory" + focusgroupstart</code>
+          <div class="entry-demo-row">
+            <input type="text" class="demo-input" placeholder="Tab from here →">
+            <div focusgroup="toolbar inline no-memory" aria-label="Entry demo">
+              <button type="button">First</button>
+              <button type="button" focusgroupstart>Middle (Entry)</button>
+              <button type="button">Last</button>
+            </div>
+            <input type="text" class="demo-input" placeholder="← Shift+Tab from here">
+          </div>
+        </div>
+        <p class="muted">
+          Both Tab and Shift+Tab land on "Middle" because it has <code>focusgroupstart</code>.
+        </p>
+      </div>
     </section>
 
     <section aria-labelledby="memory-title" class="example">
-      <h2 id="memory-title">Memory vs Entry Priority</h2>
-      <p>
-        By default, focusgroups maintain a "memory" of the last-focused element. When you re-enter the group via Tab, focus returns to where you left off.
-        The <code>focusgroup-entry-priority</code> attribute defines the initial entry point when no memory exists.
-      </p>
+      <h2 id="memory-title" tabindex="0">Focus Memory</h2>
+      <div focusgroup="none">
+        <p>
+          By default, focusgroups remember which item was last focused.
+          When you Tab away and return, focus restores to that item.
+        </p>
 
-      <h3>With Memory (Default)</h3>
-      <p>
-        1. Click "Last" to set focus there, establishing memory.<br>
-        2. Press Tab to leave the group.<br>
-        3. Press Shift+Tab to return. Focus restores to "Last," ignoring the "Entry Priority" attribute because memory takes precedence.
-      </p>
-      <div focusgroup="toolbar inline" aria-label="Memory demo">
-        <button>First</button>
-        <button focusgroup-entry-priority>Entry Priority</button>
-        <button>Last</button>
-      </div>
-
-      <h3>With No Memory</h3>
-      <p>
-        The <code>no-memory</code> token disables focus restoration.<br>
-        1. Click "Last".<br>
-        2. Tab away and Shift+Tab back.<br>
-        3. Focus always resets to "Entry Priority," as the group refuses to remember your previous position.
-      </p>
-      <div focusgroup="toolbar inline no-memory" aria-label="No memory demo">
-        <button>First</button>
-        <button focusgroup-entry-priority>Entry Priority</button>
-        <button>Last</button>
-      </div>
-    </section>
-
-    <section aria-labelledby="inference-title" class="example">
-      <h2 id="inference-title">Role Inference</h2>
-      <p>
-        To reduce boilerplate, <code>focusgroup</code> can infer ARIA roles for generic children based on the container's behavior token.
-        Below, generic <code>&lt;div&gt;</code> elements automatically become <code>menuitem</code>s because they are in a <code>menu</code> focusgroup.
-        Explicit roles (like the "Cut" button) are preserved.
-      </p>
-      <div focusgroup="menu inline wrap" aria-label="Edit actions">
-        <div class="item" tabindex="0" focusgroup-entry-priority>Copy</div>
-        <button role="menuitem">Cut</button>
-        <div class="item" tabindex="0">Paste</div>
-      </div>
-    </section>
-
-
-    <section aria-labelledby="descendants-title" class="example">
-      <h2 id="descendants-title">Descendant Navigation</h2>
-      <p>
-        Focusgroup definitions apply to the entire subtree (shadow-inclusive).
-        You do not need to wrap every item directly; the focusgroup finds all valid candidates (alpha, beta, gamma) even though they are nested deep within other structural markup.
-      </p>
-      <div focusgroup="toolbar inline" aria-label="Nested wrappers">
-        <div>
-          <span><button>Alpha</button></span>
-          <span><button>Beta</button></span>
-          <span><button>Gamma</button></span>
+        <h3>With Memory (Default)</h3>
+        <p><strong>Try it:</strong> Tab to this toolbar, then arrow to "Last". Tab away, then Tab back. Focus returns to "Last".</p>
+        <div class="demo">
+          <code class="attr-label">focusgroup="toolbar inline"</code>
+          <div focusgroup="toolbar inline" aria-label="Memory demo">
+            <button type="button">First</button>
+            <button type="button">Middle</button>
+            <button type="button">Last</button>
+          </div>
         </div>
-      </div>
-    </section>
 
-    <section aria-labelledby="backward-title" class="example">
-      <h2 id="backward-title">Consistent Entry Direction</h2>
-      <p>
-        Unlike standard tab navigation where Shift+Tab lands on the last element, a <code>focusgroup</code> provides a single, consistent entry point regardless of approach direction.
-        If you Shift+Tab into this toolbar from the bottom input, focus will land on "Middle" (Entry Priority) or the stored memory, not "Right".
-      </p>
-      <div style="display: flex; gap: 1rem; align-items: center;">
-        <input type="text" placeholder="Start here" style="padding: .5rem;">
-        <div focusgroup="toolbar inline no-memory" aria-label="Backward demo">
-          <button>Left</button>
-          <button focusgroup-entry-priority>Middle (Entry)</button>
-          <button>Right</button>
+        <h3>Without Memory (<code>no-memory</code>)</h3>
+        <p>
+          Disable memory to always enter at a fixed point (typically the selected item).
+        </p>
+        <p><strong>Try it:</strong> Tab to this toolbar, then arrow to "Last". Tab away, then Tab back. Focus resets to "Entry".</p>
+        <div class="demo">
+          <code class="attr-label">focusgroup="toolbar inline no-memory" + focusgroupstart</code>
+          <div focusgroup="toolbar inline no-memory" aria-label="No memory demo">
+            <button type="button">First</button>
+            <button type="button" focusgroupstart>Entry</button>
+            <button type="button">Last</button>
+          </div>
         </div>
-        <input type="text" placeholder="Shift+Tab from here" style="padding: .5rem;">
-      </div>
-    </section>
-
-    <section aria-labelledby="basic-list-title" class="example">
-      <h2 id="basic-list-title">Guaranteed Tab Stop (Toolbar)</h2>
-      <p>
-        The <code>toolbar</code> token creates a single "Guaranteed Tab Stop" for the entire group.
-        Even though there are four buttons, pressing Tab only stops once on the group.
-        Arrow keys (Left/Right) navigate internally. This reduces "tab fatigue" for users.
-      </p>
-      <div focusgroup="toolbar inline" aria-label="Text formatting">
-        <button type="button">Bold</button>
-        <button type="button">Italic</button>
-        <button type="button">Underline</button>
-        <button type="button">Strike</button>
-      </div>
-    </section>
-
-    <section aria-labelledby="vertical-list-title" class="example">
-      <h2 id="vertical-list-title">Vertical List (Axis Locking)</h2>
-      <p>
-        The <code>block</code> token restricts navigation to the vertical axis (Up/Down Arrow).
-        Left/Right keys are ignored by the focusgroup, allowing them to perform other actions (like opening submenus) without moving focus, although default actions depend on the specific role.
-      </p>
-      <div focusgroup="menu block" aria-label="File actions">
-        <div class="item" tabindex="0">New</div>
-        <div class="item" tabindex="0">Open…</div>
-        <div class="item" tabindex="0">Save</div>
-        <div class="item" tabindex="0">Exit</div>
+        <p class="muted">
+          Tablists typically use <code>no-memory</code> so focus returns to the selected tab, not the last-focused one.
+        </p>
       </div>
     </section>
 
     <section aria-labelledby="wrapping-title" class="example">
-      <h2 id="wrapping-title">Wrapping Tablist</h2>
-      <p>
-        By default, focus stops at the edges of the group.
-        Adding the <code>wrap</code> token creates a continuous loop: pressing Right Arrow on the last item jumps to the first, and vice versa.
-      </p>
-      <div focusgroup="tablist inline wrap no-memory" aria-label="Sections">
-        <button role="tab" type="button" aria-selected="true" focusgroup-entry-priority>Overview</button>
-        <button role="tab" type="button" aria-selected="false">Specs</button>
-        <button role="tab" type="button" aria-selected="false">Examples</button>
-        <button role="tab" type="button" aria-selected="false">FAQ</button>
+      <h2 id="wrapping-title" tabindex="0">Wrapping</h2>
+      <div focusgroup="none">
+        <p>
+          By default, arrow navigation stops at the edges.
+          Add <code>wrap</code> to create a continuous loop.
+        </p>
+        <p>
+          <strong>Try it:</strong> Tab to this toolbar, then press Right Arrow repeatedly. Focus wraps from "FAQ" back to "Overview".
+        </p>
+        <div class="demo">
+          <code class="attr-label">focusgroup="toolbar inline wrap"</code>
+          <div focusgroup="toolbar inline wrap" aria-label="Wrapping demo">
+            <button type="button" focusgroupstart>Overview</button>
+            <button type="button">Specs</button>
+            <button type="button">Examples</button>
+            <button type="button">FAQ</button>
+          </div>
+        </div>
+        <p class="muted">
+          Wrapping is common for tablists and small toolbars, but can be disorienting for long lists.
+        </p>
       </div>
     </section>
 
-    <section aria-labelledby="nested-title" class="example">
-      <h2 id="nested-title">Nested Focusgroups</h2>
-      <p>
-        Focusgroups can be nested. The inner "Formatting" toolbar is an independent focusgroup.
-        When you enter it, arrow keys cycle <em>only</em> within that inner group. You must use Tab to exit the inner group and return to the outer "Main" toolbar flow.
-      </p>
-      <div focusgroup="toolbar inline" aria-label="Main toolbar">
-        <button type="button">Save</button>
-        <button type="button" focusgroup-entry-priority>Print</button>
+    <section aria-labelledby="axis-title" class="example">
+      <h2 id="axis-title" tabindex="0">Axis Locking</h2>
+      <div focusgroup="none">
+        <p>
+          Restrict navigation to one axis using <code>inline</code> (Left/Right) or <code>block</code> (Up/Down).
+          This reserves the other axis for other behaviors (e.g., opening submenus).
+        </p>
 
-        <div class="card">
-          <h3>Formatting</h3>
-          <div focusgroup="toolbar inline wrap" aria-label="Text formatting">
-            <button type="button">Bold</button>
-            <button type="button" focusgroup-entry-priority>Italic</button>
-            <button type="button">Underline</button>
+        <h3>Inline (Horizontal Only)</h3>
+        <p><strong>Try it:</strong> Tab to this toolbar, then use Left/Right arrows. Up/Down are ignored.</p>
+        <div class="demo">
+          <code class="attr-label">focusgroup="toolbar inline"</code>
+          <div focusgroup="toolbar inline" aria-label="Horizontal toolbar">
+            <button type="button">One</button>
+            <button type="button">Two</button>
+            <button type="button">Three</button>
           </div>
         </div>
 
-        <button type="button">Close</button>
-        <button type="button" focusgroup-entry-priority>Exit</button>
+        <h3>Block (Vertical Only)</h3>
+        <p><strong>Try it:</strong> Tab to this menu, then use Up/Down arrows. Left/Right are ignored.</p>
+        <div class="demo">
+          <code class="attr-label">focusgroup="menu block"</code>
+          <div focusgroup="menu block" aria-label="Vertical menu">
+            <div class="item" tabindex="0">New</div>
+            <div class="item" tabindex="0">Open…</div>
+            <div class="item" tabindex="0">Save</div>
+            <div class="item" tabindex="0">Exit</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================ -->
+    <!-- SECTION 3: ADVANCED USAGE -->
+    <!-- ============================================ -->
+    <section aria-labelledby="advanced-title">
+      <h2 id="advanced-title" tabindex="0">Advanced Usage</h2>
+      <p>
+        These patterns handle complex scenarios like nested widgets, excluded elements, and CSS-driven layouts.
+      </p>
+    </section>
+
+    <section aria-labelledby="nested-title" class="example">
+      <h2 id="nested-title" tabindex="0">Nested Focusgroups</h2>
+      <div focusgroup="none">
+        <p>
+          Nested focusgroups are independent scopes. A nested focusgroup automatically opts out of its ancestor's arrow navigation.
+          Use Tab to move between focusgroups; arrows navigate within the current one.
+        </p>
+        <p>
+          <strong>Try it:</strong> Tab to the main toolbar (starts at "Print"), then use Left/Right arrows.
+          Arrow keys move between Save, Print, Close, Exit—skipping the nested formatting toolbar entirely.
+          Tab again to enter the nested toolbar.
+        </p>
+        <div class="demo">
+          <code class="attr-label">focusgroup="toolbar inline" + nested focusgroup="toolbar inline wrap"</code>
+          <div focusgroup="toolbar inline" aria-label="Main toolbar">
+            <button type="button">Save</button>
+            <button type="button" focusgroupstart>Print</button>
+
+            <div focusgroup="toolbar inline wrap" aria-label="Text formatting" class="nested-toolbar">
+              <button type="button">Bold</button>
+              <button type="button" focusgroupstart>Italic</button>
+              <button type="button">Underline</button>
+            </div>
+
+            <button type="button">Close</button>
+            <button type="button">Exit</button>
+          </div>
+        </div>
+        <p class="muted">
+          Each focusgroup maintains its own memory and entry point independently.
+        </p>
       </div>
     </section>
 
     <section aria-labelledby="optout-title" class="example">
-      <h2 id="optout-title">Focusgroup Segments (Opt-out)</h2>
-      <p>
-        Elements with <code>focusgroup="none"</code> split the focusgroup into separate "segments".
-        <strong>Arrow keys</strong> skip over the opted-out section entirely (jumping from "Save" to "Close").
-        <strong>Tab keys</strong>, however, treat the opted-out section as interactive content, stopping at "Help" and "Shortcuts" sequentially.
-      </p>
-      <div focusgroup="toolbar inline wrap" aria-label="Document toolbar">
-        <button>New</button>
-        <button focusgroup-entry-priority>Open</button>
-        <button>Save</button>
+      <h2 id="optout-title" tabindex="0">Opt-out Segments</h2>
+      <div focusgroup="none">
+        <p>
+          Use <code>focusgroup="none"</code> to exclude elements from arrow navigation while keeping them tabbable.
+          This splits the focusgroup into "segments", each with its own tab stop.
+        </p>
+        <p>
+          <strong>Try it:</strong> Tab to this toolbar, then use Left/Right arrows. Arrows skip "Help" and "Shortcuts" (Save → Close directly).
+          But Tab stops at them, creating three tab stops total.
+        </p>
+        <div class="demo">
+          <code class="attr-label">focusgroup="toolbar inline" + focusgroup="none"</code>
+          <div focusgroup="toolbar inline" aria-label="Document toolbar">
+            <button type="button">New</button>
+            <button type="button" focusgroupstart>Open</button>
+            <button type="button">Save</button>
 
-        <span focusgroup="none" aria-label="Help section">
-          <button>Help</button>
-          <button>Shortcuts</button>
-        </span>
+            <span focusgroup="none">
+              <button type="button">Help</button>
+              <button type="button">Shortcuts</button>
+            </span>
 
-        <button>Close</button>
-        <button focusgroup-entry-priority>Exit</button>
+            <button type="button">Close</button>
+            <button type="button">Exit</button>
+          </div>
+        </div>
+        <p class="muted">
+          Use this to exclude infrequent controls (like Help) from high-frequency arrow flows.
+        </p>
+      </div>
+    </section>
+
+    <section aria-labelledby="inference-title" class="example">
+      <h2 id="inference-title" tabindex="0">Role Inference</h2>
+      <div focusgroup="none">
+        <p>
+          Focusgroup can infer ARIA roles for generic children based on the behavior token.
+          For example, <code>&lt;div&gt;</code> elements in a <code>menu</code> automatically become <code>menuitem</code>s.
+          Explicit roles are preserved.
+        </p>
+        <p>
+          <strong>Try it:</strong> Tab to this menu, then use Up/Down arrows. All three items behave identically despite different markup.
+        </p>
+        <div class="demo">
+          <code class="attr-label">focusgroup="menu block wrap"</code>
+          <div focusgroup="menu block wrap" aria-label="Edit actions">
+            <div class="item" tabindex="0" focusgroupstart>Copy</div>
+            <button type="button" role="menuitem">Cut</button>
+            <div class="item" tabindex="0">Paste</div>
+          </div>
+        </div>
+
+        <h3>Descendant Discovery</h3>
+        <p>
+          Items don't need to be direct children. Focusgroup finds all focusable descendants, even when deeply nested.
+        </p>
+        <p><strong>Try it:</strong> Tab to this toolbar, then use Left/Right arrows to navigate the nested buttons.</p>
+        <div class="demo">
+          <code class="attr-label">focusgroup="toolbar inline"</code>
+          <div focusgroup="toolbar inline" aria-label="Nested wrappers">
+            <div>
+              <span><button type="button">Alpha</button></span>
+              <span><button type="button">Beta</button></span>
+              <span><button type="button">Gamma</button></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="menubar-title" class="example">
+      <h2 id="menubar-title" tabindex="0">Menus &amp; Submenus</h2>
+      <div focusgroup="none">
+        <p>
+          Menubars combine nested focusgroups with popovers. The menubar uses <code>inline</code> (Left/Right),
+          while dropdown menus use <code>block</code> (Up/Down). This reserves orthogonal arrows for opening/closing menus.
+        </p>
+        <p>
+          <strong>Try it:</strong> Tab to the menubar, then use Left/Right arrows. Click an item to open its dropdown,
+          then use Up/Down arrows within. "Tuition" has a submenu—click it to reveal nested options.
+        </p>
+        <div class="demo">
+          <code class="attr-label">focusgroup="menubar inline wrap" + nested focusgroup="menu block wrap"</code>
+          <ul class="menubar-demo" focusgroup="menubar inline wrap" aria-label="University navigation">
+            <li role="none">
+              <button type="button" role="menuitem" class="menubar-trigger" popovertarget="about-menu" focusgroupstart>About ▾</button>
+              <ul id="about-menu" class="dropdown-menu" focusgroup="menu block wrap" popover aria-label="About">
+                <li role="none"><a href="#" role="menuitem" class="menu-item" autofocus>Overview</a></li>
+                <li role="none"><a href="#" role="menuitem" class="menu-item">Administration</a></li>
+                <li role="none"><a href="#" role="menuitem" class="menu-item">Campus Map</a></li>
+              </ul>
+            </li>
+            <li role="none">
+              <button type="button" role="menuitem" class="menubar-trigger" popovertarget="admissions-menu">Admissions ▾</button>
+              <ul id="admissions-menu" class="dropdown-menu" focusgroup="menu block wrap" popover aria-label="Admissions">
+                <li role="none"><a href="#" role="menuitem" class="menu-item" autofocus>Apply Now</a></li>
+                <li role="none">
+                  <button type="button" role="menuitem" class="menu-item submenu-trigger" popovertarget="tuition-menu">Tuition ▸</button>
+                  <ul id="tuition-menu" class="submenu" focusgroup="menu block wrap" popover aria-label="Tuition">
+                    <li role="none"><a href="#" role="menuitem" class="menu-item" autofocus>Undergraduate</a></li>
+                    <li role="none"><a href="#" role="menuitem" class="menu-item">Graduate</a></li>
+                    <li role="none"><a href="#" role="menuitem" class="menu-item">Financial Aid</a></li>
+                  </ul>
+                </li>
+                <li role="none"><a href="#" role="menuitem" class="menu-item">Visit Campus</a></li>
+                <li role="none"><a href="#" role="menuitem" class="menu-item">Contact Us</a></li>
+              </ul>
+            </li>
+            <li role="none">
+              <button type="button" role="menuitem" class="menubar-trigger" popovertarget="academics-menu">Academics ▾</button>
+              <ul id="academics-menu" class="dropdown-menu" focusgroup="menu block wrap" popover aria-label="Academics">
+                <li role="none"><a href="#" role="menuitem" class="menu-item" autofocus>Programs</a></li>
+                <li role="none"><a href="#" role="menuitem" class="menu-item">Departments</a></li>
+                <li role="none"><a href="#" role="menuitem" class="menu-item">Faculty</a></li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+
+        <h3>How It Works</h3>
+        <ul>
+          <li><strong>Menubar:</strong> <code>focusgroup="menubar inline wrap"</code> — Left/Right navigation</li>
+          <li><strong>Dropdown menus:</strong> <code>focusgroup="menu block wrap"</code> — Up/Down navigation</li>
+          <li><strong>Focus on open:</strong> First item in each menu has <code>autofocus</code> to receive focus when popover opens</li>
+          <li><strong>Popover integration:</strong> <code>popover</code> + <code>popovertarget</code> handle show/hide</li>
+        </ul>
+        <p class="muted">
+          Full menu behavior (arrow-key activation, Escape to close) requires additional JavaScript.
+          Focusgroup handles navigation within each level; autofocus on first item handles focus placement.
+        </p>
       </div>
     </section>
 
     <section aria-labelledby="readingflow-title" class="example">
-      <h2 id="readingflow-title">Visual Reading Flow</h2>
-      <p>
-        Focusgroup respects the CSS visual order, not just the DOM order.
-        Here, <code>flex-direction: row-reverse</code> flips the visual display (C, B, A).
-        Pressing the <strong>Right Arrow</strong> moves focus visually to the right (C -> B -> A), matching user expectation rather than source code order.
-      </p>
-      <div focusgroup="toolbar" aria-label="Visual order toolbar" class="visual-reorder" style="reading-flow:flex-visual;">
-        <button>A</button>
-        <button>B</button>
-        <button>C</button>
-      </div>
-    </section>
-
-    <section aria-labelledby="radiogroup-title" class="example">
-      <h2 id="radiogroup-title">Radiogroup (Navigation Only)</h2>
-      <p>
-        The <code>focusgroup</code> attribute manages <strong>navigation only</strong>, not selection.
-        Unlike a native <code>&lt;input type="radio"&gt;</code>, moving check status does not automatically follow focus.
-        Authors must implement "selection follows focus" manually if desired; distinct separation allows valid patterns like "Manual Activation" tabs or mixed-state toolbars.
-      </p>
-      <div focusgroup="radiogroup inline" aria-label="Text alignment">
-        <button role="radio" aria-checked="true">Left</button>
-        <button role="radio" aria-checked="false">Center</button>
-        <button role="radio" aria-checked="false">Right</button>
+      <h2 id="readingflow-title" tabindex="0">Reading Flow</h2>
+      <div focusgroup="none">
+        <p>
+          Focusgroup respects CSS <code>reading-flow</code>, navigating in visual order rather than DOM order.
+          Here, <code>flex-direction: row-reverse</code> displays C, B, A from left to right.
+        </p>
+        <p>
+          <strong>Try it:</strong> Tab to this toolbar. Focus starts on C (leftmost). Use Right Arrow to move to B, then A—following visual order.
+        </p>
+        <div class="demo">
+          <code class="attr-label">focusgroup="toolbar" + CSS reading-flow</code>
+          <div focusgroup="toolbar" aria-label="Visual order toolbar" class="visual-reorder visual-reading-flow">
+            <button type="button">A</button>
+            <button type="button">B</button>
+            <button type="button">C</button>
+          </div>
+        </div>
+        <p class="muted">
+          Arrow navigation matches what users see, not the underlying markup structure.
+        </p>
       </div>
     </section>
     </div>
   </main>
 
   <footer>
-    <p>Built for demonstration only; not a recommendation</p>
+    <p>Built for demonstration purposes</p>
   </footer>
-  <script src="scripts.js"></script>
 </body>
 </html>
