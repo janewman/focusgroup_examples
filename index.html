@@ -34,7 +34,6 @@
         <li><a href="#nested-title">Nested Focusgroups</a></li>
         <li><a href="#optout-title">Opt-out Segments</a></li>
         <li><a href="#inference-title">Role Inference</a></li>
-        <li><a href="#menubar-title">Menus &amp; Submenus</a></li>
         <li><a href="#readingflow-title">Reading Flow</a></li>
       </ul>
     </nav>
@@ -439,69 +438,6 @@
             </div>
           </div>
         </div>
-      </div>
-    </section>
-
-    <section aria-labelledby="menubar-title" class="example">
-      <h2 id="menubar-title" tabindex="0">Menus &amp; Submenus</h2>
-      <div focusgroup="none">
-        <p>
-          Menubars combine nested focusgroups with popovers. The menubar uses <code>inline</code> (Left/Right),
-          while dropdown menus use <code>block</code> (Up/Down). This reserves orthogonal arrows for opening/closing menus.
-        </p>
-        <p>
-          <strong>Try it:</strong> Tab to the menubar, then use Left/Right arrows. Click an item to open its dropdown,
-          then use Up/Down arrows within. "Tuition" has a submenu—click it to reveal nested options.
-        </p>
-        <div class="demo">
-          <code class="attr-label">focusgroup="menubar inline wrap" + nested focusgroup="menu block wrap"</code>
-          <ul class="menubar-demo" focusgroup="menubar inline wrap" aria-label="University navigation">
-            <li role="none">
-              <button type="button" role="menuitem" class="menubar-trigger" popovertarget="about-menu" focusgroupstart>About ▾</button>
-              <ul id="about-menu" class="dropdown-menu" focusgroup="menu block wrap" popover aria-label="About">
-                <li role="none"><a href="#" role="menuitem" class="menu-item" autofocus>Overview</a></li>
-                <li role="none"><a href="#" role="menuitem" class="menu-item">Administration</a></li>
-                <li role="none"><a href="#" role="menuitem" class="menu-item">Campus Map</a></li>
-              </ul>
-            </li>
-            <li role="none">
-              <button type="button" role="menuitem" class="menubar-trigger" popovertarget="admissions-menu">Admissions ▾</button>
-              <ul id="admissions-menu" class="dropdown-menu" focusgroup="menu block wrap" popover aria-label="Admissions">
-                <li role="none"><a href="#" role="menuitem" class="menu-item" autofocus>Apply Now</a></li>
-                <li role="none">
-                  <button type="button" role="menuitem" class="menu-item submenu-trigger" popovertarget="tuition-menu">Tuition ▸</button>
-                  <ul id="tuition-menu" class="submenu" focusgroup="menu block wrap" popover aria-label="Tuition">
-                    <li role="none"><a href="#" role="menuitem" class="menu-item" autofocus>Undergraduate</a></li>
-                    <li role="none"><a href="#" role="menuitem" class="menu-item">Graduate</a></li>
-                    <li role="none"><a href="#" role="menuitem" class="menu-item">Financial Aid</a></li>
-                  </ul>
-                </li>
-                <li role="none"><a href="#" role="menuitem" class="menu-item">Visit Campus</a></li>
-                <li role="none"><a href="#" role="menuitem" class="menu-item">Contact Us</a></li>
-              </ul>
-            </li>
-            <li role="none">
-              <button type="button" role="menuitem" class="menubar-trigger" popovertarget="academics-menu">Academics ▾</button>
-              <ul id="academics-menu" class="dropdown-menu" focusgroup="menu block wrap" popover aria-label="Academics">
-                <li role="none"><a href="#" role="menuitem" class="menu-item" autofocus>Programs</a></li>
-                <li role="none"><a href="#" role="menuitem" class="menu-item">Departments</a></li>
-                <li role="none"><a href="#" role="menuitem" class="menu-item">Faculty</a></li>
-              </ul>
-            </li>
-          </ul>
-        </div>
-
-        <h3>How It Works</h3>
-        <ul>
-          <li><strong>Menubar:</strong> <code>focusgroup="menubar inline wrap"</code> — Left/Right navigation</li>
-          <li><strong>Dropdown menus:</strong> <code>focusgroup="menu block wrap"</code> — Up/Down navigation</li>
-          <li><strong>Focus on open:</strong> First item in each menu has <code>autofocus</code> to receive focus when popover opens</li>
-          <li><strong>Popover integration:</strong> <code>popover</code> + <code>popovertarget</code> handle show/hide</li>
-        </ul>
-        <p class="muted">
-          Full menu behavior (arrow-key activation, Escape to close) requires additional JavaScript.
-          Focusgroup handles navigation within each level; autofocus on first item handles focus placement.
-        </p>
       </div>
     </section>
 
