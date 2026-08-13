@@ -1,64 +1,43 @@
-# Please go to https://github.com/MicrosoftEdge/Demos for up to date examples.
+# Focusgroup V2 scratch proof of concept
 
+A self-contained JavaScript sketch inspired by the
+[Open UI Focusgroup V2 proposal](https://open-ui.org/components/focusgroup-v2.explainer/).
 
+The page authors the proposed `focusgroup` tokens and `focusgrouprow` attribute directly.
+`scripts.js` approximates enough behavior for discussion and hands-on keyboard testing in
+browsers that do not yet ship Focusgroup V2. This is scratch code: it is not a production
+polyfill, conformance test, reference implementation, or claim about final browser behavior.
 
+## Concepts explored
 
+- `itemcontrols` and `noitemcontrols`
+- `feed`, inferred roles, focus memory, and dynamic insertion
+- automatic native-table grid topology
+- `grid manual` and `focusgrouprow`
+- one-target-per-cell validation and opted-out cell controls
+- hard edges, `wrap`, `flow`, `rowwrap`, `colwrap`, `rowflow`, `colflow`, and `nowrap`
+- Arrow keys, Home/End, Ctrl+Home/Ctrl+End, `focusgroupstart`, and RTL inline direction
+- `nomemory` and horizontal/vertical writing-mode navigation
+- live invalid-grid diagnostics
+- native V2 feature detection
 
+## Run locally
 
-
-
-
-_____________________
-# Focusgroup Examples
-
-Interactive examples inspired by the Open UI explainer for Focusgroup: https://open-ui.org/components/scoped-focusgroup.explainer/
-
-## Browser Requirements
-
-To use the browser's `focusgroup` implementation, please ensure you are on a **Chromium-based browser (version 144+)** and have the following flag enabled:
-`chrome://flags/#enable-experimental-web-platform-features`
-
-## Source Code
-
-For the best context when viewing these examples, please refer to the [source file](https://github.com/janewman/focusgroup_examples/blob/main/index.html) to see the implementation details.
-
-## Contents
-- index.html — examples and explanations
-- styles.css — minimal styling
-- scripts.js — no polyfill; only a small feature-detection console note
-
-### Shared classes
-- `menubar`, `list-reset`: layout for menubar lists
-- `popover-menu`: layout for popover menus
-- `visual-reorder`: flex row-reverse helper for reading-flow demos
-
-## Run locally (Windows)
-Open `index.html` in your browser, or start a simple local server:
+Open `index.html` directly, or serve the directory:
 
 ```powershell
-# From the c:\focusgroup_examples folder
-# Using PowerShell's Start-Process to open default browser
-Start-Process .\index.html
-
-# Optional: serve with Python if installed
 python -m http.server 8080
-# then open http://localhost:8080/index.html
 ```
 
-## Keyboard behavior (native)
-- Linear focus: Arrow keys move within the group; Tab exits.
-- Axis limits: `inline` (Left/Right) or `block` (Up/Down).
-- Wrapping: `wrap` wraps from ends.
-- Memory: remembers last focused item unless `no-memory` is set.
-- Entry: `focusgroup-entry-priority` chooses initial focus when memory doesn’t apply.
-- Opt-out: `focusgroup="none"` creates sequential navigation segments; arrows skip.
-- Reading-flow: when supported, arrow keys follow visual order.
-- Shadow DOM: focusgroup can traverse into shadow trees from a host.
-- Descendants: non-focusable wrappers are ignored; focusable descendants participate.
-- Backward nav: Shift+Tab enters the previous segment; memory applies per segment.
+Then open <http://localhost:8080/>.
 
-## Notes
-- These examples rely on the native `focusgroup` attribute. Support may be behind a browser flag.
-- Try enabling “Experimental Web Platform features” (e.g., Chrome/Edge) if needed.
-- Add ARIA roles where appropriate for semantics (e.g., `role="tab"`, `role="menuitem"`).
-- Popover demos use the HTML Popover API (`popover`, `popovertarget`, `autofocus`). Ensure your browser supports it.
+## Scope
+
+The script sketches focus navigation and sequential eligibility. It may intentionally simplify
+or omit proposal details. Selection, activation, expansion, scrolling, and content loading
+remain author-managed.
+
+This is a behavioral demo rather than a browser-engine polyfill. Closed shadow roots,
+top-layer dispatch, CSS flat-tree traversal, and native IDL reflection cannot be reproduced
+fully by page JavaScript; those engine-only rules remain represented by authored markup,
+feature detection, and diagnostics rather than patched browser prototypes.
