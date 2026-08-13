@@ -180,6 +180,247 @@ footer {
   padding: 0 2rem;
 }
 
+.toc-feature {
+  color: var(--accent) !important;
+  background: rgb(121 231 196 / 8%);
+}
+
+.modes-hero h1 span {
+  display: inline;
+  color: var(--accent);
+  font: inherit;
+}
+
+.modes-intro > p {
+  margin: 0;
+  color: var(--text-soft);
+}
+
+.mode-lab-shell {
+  display: grid;
+}
+
+.mode-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  padding: 0.7rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.mode-picker button {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.65rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  cursor: pointer;
+}
+
+.mode-picker [aria-checked="true"] {
+  border-color: var(--accent-strong);
+  background: rgb(121 231 196 / 10%);
+}
+
+.mode-stage {
+  display: grid;
+  grid-template-columns: minmax(18rem, 1fr) auto;
+  gap: 1rem;
+  align-items: center;
+  padding: 1.4rem;
+}
+
+.exploration-card {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+}
+
+.exploration-card {
+  display: grid;
+  grid-template-columns: 4.5rem 1fr;
+  gap: 0.9rem;
+  padding: 0.8rem;
+}
+
+.exploration-card:focus-within {
+  border-color: var(--accent-strong);
+  box-shadow: 0 0 0 2px rgb(121 231 196 / 8%);
+}
+
+.card-art {
+  grid-row: 1 / span 2;
+  min-height: 5rem;
+  border-radius: 10px;
+}
+
+.card-art.coral {
+  background: linear-gradient(145deg, #ffbc80, #ff6e76);
+}
+
+.card-kicker {
+  margin: 0;
+  color: var(--accent);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.exploration-card h3 {
+  margin: 0;
+}
+
+.exploration-card p {
+  margin: 0.2rem 0;
+  color: var(--muted);
+}
+
+.exploration-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.exploration-actions a {
+  display: inline-grid;
+  min-height: 2.1rem;
+  place-items: center;
+  padding: 0.35rem 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--surface-3);
+  text-decoration: none;
+  font-weight: 650;
+}
+
+.mode-readout {
+  display: grid;
+  gap: 0.6rem;
+  padding: 0.8rem 1rem;
+  border-top: 1px solid var(--line);
+  color: var(--text-soft);
+}
+
+.mode-readout p {
+  margin: 0;
+}
+
+.mode-readout output {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.simplified-markup {
+  margin: 0;
+}
+
+.mode-comparison {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.7rem;
+}
+
+.mode-comparison article {
+  display: grid;
+  gap: 0.5rem;
+  align-content: start;
+  min-height: 10rem;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+}
+
+.mode-comparison p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.submenu-shell {
+  display: block;
+}
+
+.cross-axis-menu {
+  display: grid;
+  gap: 0.45rem;
+  padding: 1.2rem;
+}
+
+.menu-branch {
+  display: grid;
+  grid-template-columns: minmax(10rem, 0.75fr) minmax(14rem, 1.25fr);
+  gap: 0.75rem;
+  align-items: start;
+}
+
+.menu-parent {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.65rem 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--surface);
+}
+
+.submenu-panel {
+  display: block;
+}
+
+.submenu-panel [data-nested-focusgroup] {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.5rem;
+}
+
+.submenu-panel[hidden] {
+  display: none;
+}
+
+.submenu-shell .status-line {
+  border-top: 1px solid var(--line);
+}
+
+.cross-axis-markup {
+  padding: 1rem;
+  border-top: 1px solid var(--line);
+}
+
+.cross-axis-markup p {
+  margin: 0 0 0.5rem;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.cross-axis-markup pre {
+  margin: 0;
+}
+
+@media (max-width: 760px) {
+  .mode-stage {
+    grid-template-columns: 1fr;
+  }
+
+  .mode-comparison {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .menu-branch {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 500px) {
+  .mode-comparison {
+    grid-template-columns: 1fr;
+  }
+}
+
 section {
   padding: 3.2rem 0;
   scroll-margin-top: 5rem;

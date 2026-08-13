@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Scratch proof of concept exploring possible itemcontrols modes from Open UI issue 1500.">
+  <title>Itemcontrols Modes Scratch PoC</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="itemcontrols-modes.js" defer></script>
+</head>
+<body class="modes-page">
+  <header class="hero modes-hero">
+    <a class="eyebrow" href="index.html">← Focusgroup V2 scratch PoC</a>
+    <h1><span>itemcontrols</span> modes</h1>
+    <p class="lede">
+      A behavior sketch for ideas discussed in
+      <a href="https://github.com/openui/open-ui/issues/1500" target="_blank" rel="noopener">Open UI issue #1500</a>.
+    </p>
+    <div class="support-card">
+      <span class="support-dot" aria-hidden="true"></span>
+      <span>Hypothetical syntax · exploratory behavior · not a proposal or polyfill</span>
+    </div>
+  </header>
+
+  <nav class="toc" aria-label="Exploration sections">
+    <a href="#itemcontrols-lab">Attribute modes</a>
+    <a href="#comparison">Mode comparison</a>
+    <a href="#cross-axis">Cross-axis submenu</a>
+    <a href="index.html">V2 overview ↗</a>
+  </nav>
+
+  <main>
+    <section class="intro modes-intro" aria-labelledby="modes-overview-title">
+      <div>
+        <p class="kicker">Question being explored</p>
+        <h2 id="modes-overview-title">Should nested-control behavior be independently configurable?</h2>
+      </div>
+      <p>
+        This page treats <code>itemcontrols</code> as a separate hypothetical attribute.
+        The names mirror the modes discussed in issue #1500, but the keyboard details here
+        are only one possible interpretation.
+      </p>
+    </section>
+
+    <section id="itemcontrols-lab" aria-labelledby="itemcontrols-lab-title">
+      <div class="section-heading">
+        <div>
+          <p class="kicker">01 · Independent configuration</p>
+          <h2 id="itemcontrols-lab-title"><code>itemcontrols</code> attribute</h2>
+        </div>
+        <p>
+          This sketch makes nested-control behavior independent from <code>focusgroup</code>.
+          Arrow through the values, then Tab into the example. The attribute only manages
+          nested controls; it never changes the container’s authored focusability. This
+          standalone card does not participate in a focusgroup.
+        </p>
+      </div>
+
+      <div class="demo-shell mode-lab-shell">
+        <div class="mode-picker" focusgroup="radiogroup inline wrap" role="radiogroup"
+             data-mode-options data-card-id="mode-card" data-markup-id="mode-markup"
+             data-instructions-id="mode-instructions" aria-label="Itemcontrols value">
+          <button type="button" role="radio" aria-checked="false" tabindex="-1" data-mode="native"><code>absent</code></button>
+          <button type="button" role="radio" aria-checked="false" tabindex="-1" data-mode="no-tab"><code>no-tab</code></button>
+          <button type="button" role="radio" aria-checked="false" tabindex="-1" data-mode="tab-exit"><code>tab-exit</code></button>
+          <button type="button" role="radio" aria-checked="true" tabindex="0" data-mode="tab-only"><code>tab-only</code></button>
+        </div>
+
+        <div class="mode-stage">
+          <article id="mode-card" class="exploration-card" tabindex="0"
+                   itemcontrols="tab-only" aria-labelledby="mode-card-title">
+            <div class="card-art coral" aria-hidden="true"></div>
+            <div>
+              <p class="card-kicker">Design system</p>
+              <h3 id="mode-card-title">Focus patterns</h3>
+              <p>Compare how nested controls enter and leave sequential focus navigation.</p>
+            </div>
+            <div class="exploration-actions">
+              <a href="#comparison">Open</a>
+              <button type="button">Pin</button>
+              <button type="button" aria-label="More focus patterns actions">•••</button>
+            </div>
+          </article>
+
+          <button id="mode-after" class="secondary" type="button">After card: create project</button>
+        </div>
+
+        <div class="mode-readout">
+          <p id="mode-instructions">Tab enters and exits the card’s nested controls.</p>
+          <pre class="simplified-markup"><code id="mode-markup">&lt;article tabindex="0" itemcontrols="tab-only"&gt;
+  &lt;a href="/project"&gt;Open&lt;/a&gt;
+  &lt;button&gt;Pin&lt;/button&gt;
+  &lt;button&gt;More&lt;/button&gt;
+&lt;/article&gt;</code></pre>
+          <output id="mode-log" aria-live="polite">Ready · focus an itemcontrols value to begin.</output>
+        </div>
+      </div>
+    </section>
+
+    <section id="comparison" aria-labelledby="comparison-title">
+      <div class="section-heading">
+        <div>
+          <p class="kicker">02 · Working interpretation</p>
+          <h2 id="comparison-title">What each token means here</h2>
+        </div>
+        <p>These definitions are intentionally concrete enough to test, not normative.</p>
+      </div>
+
+      <div class="mode-comparison">
+        <article><code>absent</code><strong>Native sequence</strong><p>Without the attribute, the authored container and controls retain their ordinary focusability.</p></article>
+        <article><code>no-tab</code><strong>Explicit entry, looped</strong><p>Enter opens the controls, Tab loops within them, and Escape returns to the card.</p></article>
+        <article><code>tab-exit</code><strong>Explicit entry, escapable</strong><p>Enter opens the controls. Tab from the final control leaves the card.</p></article>
+        <article><code>tab-only</code><strong>Sequential entry and exit</strong><p>The boundary and nested controls appear naturally in the Tab sequence.</p></article>
+      </div>
+    </section>
+
+    <section id="cross-axis" aria-labelledby="cross-axis-title">
+      <div class="section-heading">
+        <div>
+          <p class="kicker">03 · Directional entry</p>
+          <h2 id="cross-axis-title">Cross-axis submenu</h2>
+        </div>
+        <p>
+          Up and Down choose a menu item. Right Arrow enters its submenu; Left Arrow or
+          Escape returns to the parent item. Each parent owns a nested block-axis focusgroup.
+        </p>
+      </div>
+
+      <div class="demo-shell submenu-shell">
+        <div id="cross-axis-menu" class="cross-axis-menu" focusgroup="menu block"
+             itemcontrols="cross-axis" aria-label="Workspace menu">
+          <div class="menu-branch">
+            <div class="menu-parent" tabindex="0" data-submenu-id="projects-submenu">
+              <span>Projects</span><span aria-hidden="true">→</span>
+            </div>
+            <div id="projects-submenu" class="submenu-panel" aria-label="Projects submenu">
+              <div focusgroup="menu block" data-nested-focusgroup aria-label="Project views">
+                <button type="button" role="menuitem" tabindex="-1">Recent</button>
+                <button type="button" role="menuitem" tabindex="-1">Starred</button>
+                <button type="button" role="menuitem" tabindex="-1">Active</button>
+              </div>
+            </div>
+          </div>
+          <div class="menu-branch">
+            <div class="menu-parent" tabindex="-1" data-submenu-id="teams-submenu">
+              <span>Teams</span><span aria-hidden="true">→</span>
+            </div>
+            <div id="teams-submenu" class="submenu-panel" aria-label="Teams submenu" hidden>
+              <div focusgroup="menu block" data-nested-focusgroup aria-label="Team views">
+                <button type="button" role="menuitem" tabindex="-1">Design</button>
+                <button type="button" role="menuitem" tabindex="-1">Engineering</button>
+                <button type="button" role="menuitem" tabindex="-1">Research</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <output id="submenu-status" class="status-line" aria-live="polite">Parent: Projects</output>
+        <div class="cross-axis-markup">
+          <p>Suggested simplified markup</p>
+          <pre><code>&lt;div focusgroup="menu block" itemcontrols="cross-axis"&gt;
+  &lt;div tabindex="0"&gt;
+    Projects
+    &lt;div focusgroup="menu block"&gt;
+      &lt;button&gt;Recent&lt;/button&gt;
+      &lt;button&gt;Starred&lt;/button&gt;
+      &lt;button&gt;Active&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;div tabindex="0"&gt;…&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <p>
+      Scratch exploration of
+      <a href="https://github.com/openui/open-ui/issues/1500" target="_blank" rel="noopener">Open UI issue #1500</a>.
+      Token names and behavior are hypothetical.
+    </p>
+    <p><a href="index.html">← Return to the Focusgroup V2 overview</a></p>
+  </footer>
+</body>
+</html>

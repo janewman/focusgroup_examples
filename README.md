@@ -20,6 +20,7 @@ polyfill, conformance test, reference implementation, or claim about final brows
 - `nomemory` and horizontal/vertical writing-mode navigation
 - live invalid-grid diagnostics
 - native V2 feature detection
+- a linked issue #1500 page comparing hypothetical `itemcontrols` modes
 
 ## Run locally
 
@@ -30,6 +31,9 @@ python -m http.server 8080
 ```
 
 Then open <http://localhost:8080/>.
+
+The issue #1500 exploration is available at
+<http://localhost:8080/itemcontrols-modes.html>.
 
 ## Scope
 
