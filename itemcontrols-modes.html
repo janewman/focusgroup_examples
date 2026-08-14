@@ -23,10 +23,10 @@
   </header>
 
   <nav class="toc" aria-label="Exploration sections">
-    <a href="#itemcontrols-lab">Attribute modes</a>
-    <a href="#comparison">Mode comparison</a>
-    <a href="#cross-axis">Cross-axis submenu</a>
-    <a href="#composition">Inside focusgroups</a>
+    <a href="#itemcontrols-lab">Standalone use</a>
+    <a href="#comparison">Value vocabulary</a>
+    <a href="#composition">Part of focusgroups</a>
+    <a href="#mixed-values">Mixed values</a>
     <a href="index.html">V2 overview ↗</a>
   </nav>
 
@@ -34,7 +34,7 @@
     <section class="intro modes-intro" aria-labelledby="modes-overview-title">
       <div>
         <p class="kicker">Question being explored</p>
-        <h2 id="modes-overview-title">Should nested-control behavior be independently configurable?</h2>
+        <h2 id="modes-overview-title">One attribute, standalone or composed with focusgroups?</h2>
       </div>
       <p>
         This page treats <code>itemcontrols</code> as a separate hypothetical attribute.
@@ -46,31 +46,31 @@
     <section id="itemcontrols-lab" aria-labelledby="itemcontrols-lab-title">
       <div class="section-heading">
         <div>
-          <p class="kicker">01 · Independent configuration</p>
-          <h2 id="itemcontrols-lab-title"><code>itemcontrols</code> attribute</h2>
+          <p class="kicker">01 · Standalone</p>
+          <h2 id="itemcontrols-lab-title">Standalone <code>itemcontrols</code></h2>
         </div>
         <p>
           This sketch makes nested-control behavior independent from <code>focusgroup</code>.
-          Arrow through the values to update every example on this page, then Tab into the
-          examples. The attribute only manages nested controls; it never changes a container’s
-          authored focusability.
+          Arrow through the values to update this standalone example, then Tab into it. The
+          attribute only manages nested controls; it never changes a container’s authored
+          focusability.
         </p>
       </div>
 
       <div class="demo-shell mode-lab-shell">
         <div class="mode-picker" focusgroup="radiogroup inline wrap" role="radiogroup"
-             data-global-mode-options aria-label="Itemcontrols value">
+             data-standalone-mode-options aria-label="Standalone itemcontrols value">
           <button type="button" role="radio" aria-checked="false" tabindex="-1" data-mode="native"><code>absent</code></button>
           <button type="button" role="radio" aria-checked="false" tabindex="-1" data-mode="no-tab"><code>no-tab</code></button>
           <button type="button" role="radio" aria-checked="false" tabindex="-1" data-mode="tab-exit"><code>tab-exit</code></button>
           <button type="button" role="radio" aria-checked="false" tabindex="-1" data-mode="tab-only"><code>tab-only</code></button>
-          <button type="button" role="radio" aria-checked="true" tabindex="0" data-mode="inlinedirection"><code>inlinedirection</code></button>
-          <button type="button" role="radio" aria-checked="false" tabindex="-1" data-mode="blockdirection"><code>blockdirection</code></button>
+          <button type="button" role="radio" aria-checked="true" tabindex="0" data-mode="inlineentry"><code>inlineentry</code></button>
+          <button type="button" role="radio" aria-checked="false" tabindex="-1" data-mode="blockentry"><code>blockentry</code></button>
         </div>
 
         <div class="mode-stage">
           <article id="mode-card" class="exploration-card" tabindex="0"
-                   itemcontrols="inlinedirection" aria-labelledby="mode-card-title">
+                   itemcontrols="inlineentry" aria-labelledby="mode-card-title">
             <div class="card-art coral" aria-hidden="true"></div>
             <div>
               <p class="card-kicker">Design system</p>
@@ -89,7 +89,7 @@
 
         <div class="mode-readout">
           <p id="mode-instructions">Right Arrow enters nested controls; Left Arrow returns to the card.</p>
-          <pre class="simplified-markup"><code id="mode-markup">&lt;article tabindex="0" itemcontrols="inlinedirection"&gt;
+          <pre class="simplified-markup"><code id="mode-markup">&lt;article tabindex="0" itemcontrols="inlineentry"&gt;
   &lt;a href="/project"&gt;Open&lt;/a&gt;
   &lt;button&gt;Pin&lt;/button&gt;
   &lt;button&gt;More&lt;/button&gt;
@@ -102,8 +102,8 @@
     <section id="comparison" aria-labelledby="comparison-title">
       <div class="section-heading">
         <div>
-          <p class="kicker">02 · Working interpretation</p>
-          <h2 id="comparison-title">What each token means here</h2>
+          <p class="kicker">02 · Shared vocabulary</p>
+          <h2 id="comparison-title">Values in either context</h2>
         </div>
         <p>These definitions are intentionally concrete enough to test, not normative.</p>
       </div>
@@ -113,62 +113,95 @@
         <article><code>no-tab</code><strong>Explicit entry, looped</strong><p>Enter opens the controls, Tab loops within them, and Escape returns to the card.</p></article>
         <article><code>tab-exit</code><strong>Explicit entry, escapable</strong><p>Enter opens the controls. Tab from the final control leaves the card.</p></article>
         <article><code>tab-only</code><strong>Sequential entry and exit</strong><p>The boundary and nested controls appear naturally in the Tab sequence.</p></article>
-        <article><code>inlinedirection</code><strong>Inline-axis entry</strong><p>Inline-end enters nested controls; inline-start returns to the item boundary.</p></article>
-        <article><code>blockdirection</code><strong>Block-axis entry</strong><p>Block-end enters nested controls; block-start returns to the item boundary.</p></article>
+        <article><code>inlineentry</code><strong>Inline-axis boundary</strong><p>Inline-end enters nested content; inline-start returns. It does not navigate within.</p></article>
+        <article><code>blockentry</code><strong>Block-axis boundary</strong><p>Block-end enters nested content; block-start returns. It does not navigate within.</p></article>
       </div>
     </section>
 
-    <section id="cross-axis" aria-labelledby="cross-axis-title">
+    <section id="composition" aria-labelledby="composition-title">
       <div class="section-heading">
         <div>
-          <p class="kicker">03 · Directional entry</p>
-          <h2 id="cross-axis-title">Cross-axis submenu</h2>
+          <p class="kicker">03 · Part of focusgroups</p>
+          <h2 id="composition-title"><code>itemcontrols</code> composed with focusgroups</h2>
         </div>
         <p>
-          Up and Down choose a menu item. With <code>inlinedirection</code>, Right Arrow
-          enters its submenu and Left Arrow returns. Each parent owns a nested block-axis
-          focusgroup; the shared control above can try every value.
+          Each live example uses the attribute on its items. The side-by-side markup beneath it
+          compares that form with the equivalent owner form; both produce the same behavior.
         </p>
       </div>
 
-      <div class="demo-shell submenu-shell">
-        <div id="cross-axis-menu" class="cross-axis-menu" focusgroup="menu block"
-             data-direction-menu aria-label="Workspace menu">
-          <div class="menu-parent" tabindex="0" itemcontrols="inlinedirection"
-               data-submenu-id="projects-submenu">
-            <div class="menu-parent-label">
-              <span>Projects</span><span aria-hidden="true">→</span>
-            </div>
-            <div id="projects-submenu" class="submenu-panel" aria-label="Projects submenu">
-              <div focusgroup="menu block" data-nested-focusgroup aria-label="Project views">
-                <button type="button" role="menuitem" tabindex="-1">Recent</button>
-                <button type="button" role="menuitem" tabindex="-1">Starred</button>
-                <button type="button" role="menuitem" tabindex="-1">Active</button>
-              </div>
-            </div>
-          </div>
-          <div class="menu-parent" tabindex="-1" itemcontrols="inlinedirection"
-               data-submenu-id="teams-submenu">
-            <div class="menu-parent-label">
-              <span>Teams</span><span aria-hidden="true">→</span>
-            </div>
-            <div id="teams-submenu" class="submenu-panel" aria-label="Teams submenu" hidden>
-              <div focusgroup="menu block" data-nested-focusgroup aria-label="Team views">
-                <button type="button" role="menuitem" tabindex="-1">Design</button>
-                <button type="button" role="menuitem" tabindex="-1">Engineering</button>
-                <button type="button" role="menuitem" tabindex="-1">Research</button>
-              </div>
-            </div>
+      <div class="composition-controls">
+        <div>
+          <span>Value</span>
+          <div class="mode-picker composed-mode-picker" focusgroup="radiogroup inline wrap"
+               role="radiogroup" data-composed-mode-options aria-label="Composed itemcontrols value">
+            <button type="button" role="radio" aria-checked="false" tabindex="-1" data-mode="native"><code>absent</code></button>
+            <button type="button" role="radio" aria-checked="false" tabindex="-1" data-mode="no-tab"><code>no-tab</code></button>
+            <button type="button" role="radio" aria-checked="false" tabindex="-1" data-mode="tab-exit"><code>tab-exit</code></button>
+            <button type="button" role="radio" aria-checked="true" tabindex="0" data-mode="tab-only"><code>tab-only</code></button>
+            <button type="button" role="radio" aria-checked="false" tabindex="-1" data-mode="inlineentry"><code>inlineentry</code></button>
+            <button type="button" role="radio" aria-checked="false" tabindex="-1" data-mode="blockentry"><code>blockentry</code></button>
           </div>
         </div>
-        <output id="submenu-status" class="status-line" aria-live="polite">Parent: Projects</output>
-        <div class="cross-axis-markup">
-          <p>Compare suggested markup</p>
-          <div class="markup-comparison">
+      </div>
+
+      <div class="composed-examples">
+        <article class="composed-demo direction-composed-demo">
+          <div class="composed-heading">
+            <div>
+              <span>Nested submenu</span>
+              <code>focusgroup="menu block"</code>
+            </div>
+            <p>
+              Up and Down choose a parent. With <code>inlineentry</code>, Right enters
+              its nested focusgroup and Left returns.
+            </p>
+          </div>
+          <div class="live-placement-comparison">
             <section>
-              <h4>Independent attribute on each item</h4>
-              <pre><code id="direction-item-markup">&lt;div focusgroup="menu block"&gt;
-  &lt;div tabindex="0" itemcontrols="inlinedirection"&gt;
+              <h4>Attribute on each item</h4>
+              <code data-live-value-label>itemcontrols="tab-only"</code>
+              <div id="direction-widget-items" class="submenu-shell">
+            <div id="cross-axis-menu" class="cross-axis-menu" focusgroup="menu block"
+                 data-direction-menu aria-label="Workspace menu">
+              <div class="menu-parent" tabindex="0" itemcontrols="tab-only"
+                   data-submenu-id="projects-submenu">
+                <div class="menu-parent-label">
+                  <span>Projects</span><span aria-hidden="true">→</span>
+                </div>
+                <div id="projects-submenu" class="submenu-panel" aria-label="Projects submenu">
+                  <div focusgroup="menu block" data-nested-focusgroup aria-label="Project views">
+                    <button type="button" role="menuitem">Recent</button>
+                    <button type="button" role="menuitem">Starred</button>
+                    <button type="button" role="menuitem">Active</button>
+                  </div>
+                </div>
+              </div>
+              <div class="menu-parent" tabindex="-1" itemcontrols="tab-only"
+                   data-submenu-id="teams-submenu">
+                <div class="menu-parent-label">
+                  <span>Teams</span><span aria-hidden="true">→</span>
+                </div>
+                <div id="teams-submenu" class="submenu-panel" aria-label="Teams submenu" hidden>
+                  <div focusgroup="menu block" data-nested-focusgroup aria-label="Team views">
+                    <button type="button" role="menuitem">Design</button>
+                    <button type="button" role="menuitem">Engineering</button>
+                    <button type="button" role="menuitem">Research</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <output id="submenu-status" class="status-line" aria-live="polite">Parent: Projects</output>
+              </div>
+            </section>
+          </div>
+          <details open>
+            <summary>Compare suggested markup</summary>
+            <div class="markup-comparison">
+              <section>
+                <h4>Independent attribute on each item</h4>
+                <pre><code id="direction-item-markup">&lt;div focusgroup="menu block"&gt;
+  &lt;div tabindex="0" itemcontrols="tab-only"&gt;
     Projects
     &lt;div focusgroup="menu block"&gt;
       &lt;button&gt;Recent&lt;/button&gt;
@@ -176,14 +209,13 @@
       &lt;button&gt;Active&lt;/button&gt;
     &lt;/div&gt;
   &lt;/div&gt;
-
-  &lt;div tabindex="0"&gt;…&lt;/div&gt;
+  &lt;div tabindex="0" itemcontrols="tab-only"&gt;…&lt;/div&gt;
 &lt;/div&gt;</code></pre>
-            </section>
-            <section>
-              <h4>Attribute on the focusgroup owner</h4>
-              <pre><code id="direction-owner-markup">&lt;div focusgroup="menu block"
-     itemcontrols="inlinedirection"&gt;
+              </section>
+              <section>
+                <h4>Attribute on the focusgroup owner</h4>
+                <pre><code id="direction-owner-markup">&lt;div focusgroup="menu block"
+     itemcontrols="tab-only"&gt;
   &lt;div tabindex="0"&gt;
     Projects
     &lt;div focusgroup="menu block"&gt;
@@ -192,52 +224,41 @@
       &lt;button&gt;Active&lt;/button&gt;
     &lt;/div&gt;
   &lt;/div&gt;
-
   &lt;div tabindex="0"&gt;…&lt;/div&gt;
 &lt;/div&gt;</code></pre>
-            </section>
-          </div>
-        </div>
-      </div>
-    </section>
+              </section>
+            </div>
+          </details>
+        </article>
 
-    <section id="composition" aria-labelledby="composition-title">
-      <div class="section-heading">
-        <div>
-          <p class="kicker">04 · Composing behaviors</p>
-          <h2 id="composition-title">Standalone <code>itemcontrols</code> inside focusgroups</h2>
-        </div>
-        <p>
-          The current explainer puts the <code>itemcontrols</code> modifier on the focusgroup
-          owner. These examples instead put the standalone attribute on each item that owns
-          nested controls. The outer attribute describes only spatial navigation.
-        </p>
-      </div>
-
-      <div class="composed-examples">
         <article class="composed-demo">
           <div class="composed-heading">
             <div>
               <span>Action list</span>
-              <code>owner: focusgroup="toolbar block"</code>
-              <code data-global-value-label>items: itemcontrols="inlinedirection"</code>
+              <code>focusgroup="toolbar block"</code>
             </div>
             <p>Up and Down change the active layer; Tab enters only that layer’s actions.</p>
           </div>
+          <div class="live-placement-comparison">
+            <section>
+              <h4>Attribute on each item</h4>
+              <code data-live-value-label>itemcontrols="tab-only"</code>
           <div id="composed-layers" class="composed-list" focusgroup="toolbar block"
-               data-composed-focusgroup data-axis="block" aria-label="Layers">
-            <div class="composed-item" tabindex="0" itemcontrols="inlinedirection" data-composed-item>
+               data-composed-focusgroup aria-label="Layers">
+            <div class="composed-item" tabindex="0" itemcontrols="tab-only" data-composed-item>
               <span><strong>Background</strong><small>Canvas</small></span>
               <span class="composed-actions" focusgroup="none">
                 <button type="button">Hide</button><button type="button">More</button>
               </span>
             </div>
-            <div class="composed-item" tabindex="-1" itemcontrols="inlinedirection" data-composed-item>
+            <div class="composed-item" tabindex="-1" itemcontrols="tab-only" data-composed-item>
               <span><strong>Product card</strong><small>Component</small></span>
               <span class="composed-actions" focusgroup="none">
                 <button type="button">Hide</button><button type="button">More</button>
               </span>
             </div>
+          </div>
+            </section>
           </div>
           <details open>
             <summary>Compare suggested markup</summary>
@@ -245,20 +266,20 @@
               <section>
                 <h4>Independent attribute on each item</h4>
                 <pre><code id="layers-item-markup">&lt;div focusgroup="toolbar block"&gt;
-  &lt;div tabindex="0" itemcontrols="inlinedirection"&gt;
+  &lt;div tabindex="0" itemcontrols="tab-only"&gt;
     Background
     &lt;span focusgroup="none"&gt;
       &lt;button&gt;Hide&lt;/button&gt;
       &lt;button&gt;More&lt;/button&gt;
     &lt;/span&gt;
   &lt;/div&gt;
-  &lt;div tabindex="0" itemcontrols="inlinedirection"&gt;…&lt;/div&gt;
+  &lt;div tabindex="0" itemcontrols="tab-only"&gt;…&lt;/div&gt;
 &lt;/div&gt;</code></pre>
               </section>
               <section>
                 <h4>Attribute on the focusgroup owner</h4>
                 <pre><code id="layers-owner-markup">&lt;div focusgroup="toolbar block"
-     itemcontrols="inlinedirection"&gt;
+     itemcontrols="tab-only"&gt;
   &lt;div tabindex="0"&gt;
     Background
     &lt;span focusgroup="none"&gt;
@@ -277,25 +298,30 @@
           <div class="composed-heading">
             <div>
               <span>Feed</span>
-              <code>owner: focusgroup="feed"</code>
-              <code data-global-value-label>items: itemcontrols="inlinedirection"</code>
+              <code>focusgroup="feed"</code>
             </div>
             <p>Each article independently declares how its reactions enter the Tab order.</p>
           </div>
+          <div class="live-placement-comparison">
+            <section>
+              <h4>Attribute on each item</h4>
+              <code data-live-value-label>itemcontrols="tab-only"</code>
           <div id="composed-feed" class="composed-feed" focusgroup="feed"
-               data-composed-focusgroup data-axis="block" aria-label="Updates">
-            <article class="composed-feed-item" tabindex="0" itemcontrols="inlinedirection" data-composed-item>
+               data-composed-focusgroup aria-label="Updates">
+            <article class="composed-feed-item" tabindex="0" itemcontrols="tab-only" data-composed-item>
               <strong>Alex Lin</strong><p>Shared the latest keyboard prototype.</p>
               <span class="composed-actions" focusgroup="none">
                 <button type="button">Like</button><button type="button">Reply</button>
               </span>
             </article>
-            <article class="composed-feed-item" tabindex="-1" itemcontrols="inlinedirection" data-composed-item>
+            <article class="composed-feed-item" tabindex="-1" itemcontrols="tab-only" data-composed-item>
               <strong>Samira Khan</strong><p>Added names for the action cells.</p>
               <span class="composed-actions" focusgroup="none">
                 <button type="button">Like</button><button type="button">Reply</button>
               </span>
             </article>
+          </div>
+            </section>
           </div>
           <details open>
             <summary>Compare suggested markup</summary>
@@ -303,20 +329,20 @@
               <section>
                 <h4>Independent attribute on each item</h4>
                 <pre><code id="feed-item-markup">&lt;div focusgroup="feed"&gt;
-  &lt;article tabindex="0" itemcontrols="inlinedirection"&gt;
+  &lt;article tabindex="0" itemcontrols="tab-only"&gt;
     Post content
     &lt;span focusgroup="none"&gt;
       &lt;button&gt;Like&lt;/button&gt;
       &lt;button&gt;Reply&lt;/button&gt;
     &lt;/span&gt;
   &lt;/article&gt;
-  &lt;article tabindex="0" itemcontrols="inlinedirection"&gt;…&lt;/article&gt;
+  &lt;article tabindex="0" itemcontrols="tab-only"&gt;…&lt;/article&gt;
 &lt;/div&gt;</code></pre>
               </section>
               <section>
                 <h4>Attribute on the focusgroup owner</h4>
                 <pre><code id="feed-owner-markup">&lt;div focusgroup="feed"
-     itemcontrols="inlinedirection"&gt;
+     itemcontrols="tab-only"&gt;
   &lt;article tabindex="0"&gt;
     Post content
     &lt;span focusgroup="none"&gt;
@@ -335,34 +361,39 @@
           <div class="composed-heading">
             <div>
               <span>Grid cells</span>
-              <code>owner: focusgroup="grid manual"</code>
-              <code data-global-value-label>items: itemcontrols="inlinedirection"</code>
+              <code>focusgroup="grid manual"</code>
             </div>
             <p>Each focusable cell boundary owns its controls while the grid owns coordinates.</p>
           </div>
+          <div class="live-placement-comparison">
+            <section>
+              <h4>Attribute on each item</h4>
+              <code data-live-value-label>itemcontrols="tab-only"</code>
           <div id="composed-grid" class="composed-grid" focusgroup="grid manual"
                data-composed-focusgroup data-columns="2" aria-label="Project grid">
             <div focusgrouprow>
-              <div class="composed-cell" tabindex="0" itemcontrols="inlinedirection" data-composed-item>
+              <div class="composed-cell" tabindex="0" itemcontrols="tab-only" data-composed-item>
                 <strong>Design spec</strong>
                 <span class="composed-actions" focusgroup="none"><button type="button">Open</button></span>
               </div>
-              <div class="composed-cell" tabindex="-1" itemcontrols="inlinedirection" data-composed-item>
+              <div class="composed-cell" tabindex="-1" itemcontrols="tab-only" data-composed-item>
                 <strong>Research</strong>
                 <span class="composed-actions" focusgroup="none"><button type="button">Open</button></span>
               </div>
             </div>
             <div focusgrouprow>
-              <div class="composed-cell" tabindex="-1" itemcontrols="inlinedirection" data-composed-item>
+              <div class="composed-cell" tabindex="-1" itemcontrols="tab-only" data-composed-item>
                 <strong>Prototype</strong>
                 <span class="composed-actions" focusgroup="none"><button type="button">Open</button></span>
               </div>
-              <div class="composed-cell" tabindex="-1" itemcontrols="inlinedirection" data-composed-item>
+              <div class="composed-cell" tabindex="-1" itemcontrols="tab-only" data-composed-item>
                 <strong>Test notes</strong>
                 <span class="composed-actions" focusgroup="none"><button type="button">Open</button></span>
               </div>
             </div>
           </div>
+              </section>
+            </div>
           <details open>
             <summary>Compare suggested markup</summary>
             <div class="markup-comparison">
@@ -370,18 +401,18 @@
                 <h4>Independent attribute on each item</h4>
                 <pre><code id="grid-item-markup">&lt;div focusgroup="grid manual"&gt;
   &lt;div focusgrouprow&gt;
-    &lt;div tabindex="0" itemcontrols="inlinedirection"&gt;
+    &lt;div tabindex="0" itemcontrols="tab-only"&gt;
       Design spec
       &lt;button focusgroup="none"&gt;Open&lt;/button&gt;
     &lt;/div&gt;
-    &lt;div tabindex="0" itemcontrols="inlinedirection"&gt;…&lt;/div&gt;
+    &lt;div tabindex="0" itemcontrols="tab-only"&gt;…&lt;/div&gt;
   &lt;/div&gt;
 &lt;/div&gt;</code></pre>
               </section>
               <section>
                 <h4>Attribute on the focusgroup owner</h4>
                 <pre><code id="grid-owner-markup">&lt;div focusgroup="grid manual"
-     itemcontrols="inlinedirection"&gt;
+     itemcontrols="tab-only"&gt;
   &lt;div focusgrouprow&gt;
     &lt;div tabindex="0"&gt;
       Design spec
@@ -394,6 +425,136 @@
             </div>
           </details>
         </article>
+      </div>
+    </section>
+
+    <section id="mixed-values" aria-labelledby="mixed-values-title">
+      <div class="section-heading">
+        <div>
+          <p class="kicker">04 · Per-item specialization</p>
+          <h2 id="mixed-values-title">A workspace with mixed interaction contracts</h2>
+        </div>
+        <p>
+          This is the capability an owner-level value cannot express: each item chooses an entry
+          contract that matches its nested widget. Up and Down move between item boundaries;
+          the visible keyboard hint explains how to enter each item.
+        </p>
+      </div>
+
+      <div class="demo-shell mixed-workspace-shell">
+        <div class="demo-toolbar">
+          <code>focusgroup="toolbar block"</code>
+          <span>Different <code>itemcontrols</code> value per item</span>
+        </div>
+        <div class="mixed-workspace-stage">
+          <button id="mixed-before" class="secondary" type="button">Before workspace</button>
+          <div id="mixed-workspace" class="mixed-workspace" role="toolbar"
+               aria-orientation="vertical" aria-label="Workspace command center"
+               focusgroup="toolbar block" data-mixed-workspace>
+            <div class="mixed-item" tabindex="0" role="group" itemcontrols="inlineentry"
+                 aria-labelledby="mixed-views-title" data-mixed-item>
+              <div class="mixed-item-heading">
+                <span>
+                  <strong id="mixed-views-title">Views</strong>
+                  <small>Choose a project view</small>
+                </span>
+                <span class="mixed-contract"><code>inlineentry</code><kbd>←</kbd><kbd>→</kbd> choose · <kbd>←</kbd> at edge exits</span>
+              </div>
+              <div class="mixed-nested-menu" role="menu" aria-label="Project views"
+                   focusgroup="menu inline" data-mixed-nested>
+                <button type="button" role="menuitem">Recent</button>
+                <button type="button" role="menuitem">Starred</button>
+                <button type="button" role="menuitem">Shared</button>
+              </div>
+            </div>
+
+            <div class="mixed-item" tabindex="-1" role="group" itemcontrols="tab-only"
+                 aria-labelledby="mixed-people-title" data-mixed-item>
+              <div class="mixed-item-heading">
+                <span>
+                  <strong id="mixed-people-title">Collaborators</strong>
+                  <small>People with workspace access</small>
+                </span>
+                <span class="mixed-contract"><code>tab-only</code><kbd>Tab</kbd> actions</span>
+              </div>
+              <div class="mixed-actions" focusgroup="none">
+                <button type="button">View members</button>
+                <button type="button">Invite person</button>
+              </div>
+            </div>
+
+            <div class="mixed-item" tabindex="-1" role="group" itemcontrols="tab-exit"
+                 aria-labelledby="mixed-meeting-title" data-mixed-item>
+              <div class="mixed-item-heading">
+                <span>
+                  <strong id="mixed-meeting-title">Meeting controls</strong>
+                  <small>Persistent call actions</small>
+                </span>
+                <span class="mixed-contract"><code>tab-exit</code><kbd>Enter</kbd> enter · <kbd>Tab</kbd> leaves · <kbd>Esc</kbd> returns</span>
+              </div>
+              <div class="mixed-grid" role="grid" aria-label="Meeting controls"
+                   focusgroup="grid manual" data-mixed-grid data-columns="2">
+                <div role="row" focusgrouprow>
+                  <div role="gridcell"><button type="button" aria-pressed="false">Mute</button></div>
+                  <div role="gridcell"><button type="button" aria-pressed="false">Camera</button></div>
+                </div>
+                <div role="row" focusgrouprow>
+                  <div role="gridcell"><button type="button">Share</button></div>
+                  <div role="gridcell"><button type="button" class="danger-action">Leave</button></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="mixed-item" tabindex="-1" role="group"
+                 aria-labelledby="mixed-resources-title" data-mixed-item>
+              <div class="mixed-item-heading">
+                <span>
+                  <strong id="mixed-resources-title">Resources</strong>
+                  <small>Ordinary links with native focus behavior</small>
+                </span>
+                <span class="mixed-contract"><code>attribute absent</code>ordinary DOM stops</span>
+              </div>
+              <div class="mixed-actions" focusgroup="none">
+                <a href="#mixed-markup">Keyboard guide</a>
+                <a href="https://open-ui.org/components/focusgroup-v2.explainer/"
+                   target="_blank" rel="noopener">Open explainer</a>
+              </div>
+            </div>
+          </div>
+          <button id="mixed-after" class="secondary" type="button">After workspace</button>
+        </div>
+        <output id="mixed-status" class="status-line" aria-live="polite">Active item: Views</output>
+        <details id="mixed-markup" open>
+          <summary>Simplified mixed-value markup</summary>
+          <pre><code>&lt;div focusgroup="toolbar block"&gt;
+  &lt;div tabindex="0" itemcontrols="inlineentry"&gt;
+    Views
+    &lt;div focusgroup="menu inline"&gt;…&lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;div tabindex="0" itemcontrols="tab-only"&gt;
+    Collaborators
+    &lt;button focusgroup="none"&gt;View members&lt;/button&gt;
+    &lt;button focusgroup="none"&gt;Invite person&lt;/button&gt;
+  &lt;/div&gt;
+
+  &lt;div tabindex="0" itemcontrols="tab-exit"&gt;
+    Meeting controls
+    &lt;div focusgroup="grid manual"&gt;
+      &lt;div focusgrouprow&gt;
+        &lt;button&gt;Mute&lt;/button&gt;
+        &lt;button&gt;Camera&lt;/button&gt;
+      &lt;/div&gt;
+      &lt;div focusgrouprow&gt;…&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;div tabindex="0"&gt;
+    Resources
+    &lt;a href="/guide"&gt;Keyboard guide&lt;/a&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+        </details>
       </div>
     </section>
 

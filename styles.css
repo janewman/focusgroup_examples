@@ -224,6 +224,58 @@ footer {
   background: rgb(121 231 196 / 10%);
 }
 
+.composition-controls {
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.composition-controls > div {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.composition-controls > div > span {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.composed-mode-picker {
+  margin-bottom: 1rem;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+}
+
+.composition-controls .mode-picker {
+  margin-bottom: 0;
+}
+
+.live-placement-comparison {
+  display: block;
+  background: transparent;
+}
+
+.live-placement-comparison > section {
+  min-width: 0;
+  padding: 0.8rem;
+  background: var(--surface);
+}
+
+.live-placement-comparison h4 {
+  margin: 0 0 0.25rem;
+  color: var(--text-soft);
+  font-size: 0.8rem;
+}
+
+.live-placement-comparison > section > code {
+  display: inline-block;
+  margin-bottom: 0.55rem;
+  font-size: 0.72rem;
+}
+
 .mode-stage {
   display: grid;
   grid-template-columns: minmax(18rem, 1fr) auto;
@@ -384,22 +436,6 @@ footer {
   border-top: 1px solid var(--line);
 }
 
-.cross-axis-markup {
-  padding: 1rem;
-  border-top: 1px solid var(--line);
-}
-
-.cross-axis-markup p {
-  margin: 0 0 0.5rem;
-  color: var(--muted);
-  font-size: 0.78rem;
-  font-weight: 700;
-}
-
-.cross-axis-markup pre {
-  margin: 0;
-}
-
 .composed-examples {
   display: grid;
   gap: 1rem;
@@ -438,6 +474,15 @@ footer {
 .composed-heading p {
   margin: 0;
   color: var(--muted);
+}
+
+.axis-conflict-note {
+  color: var(--amber) !important;
+  font-size: 0.72rem;
+}
+
+.composed-demo.axis-conflict {
+  border-color: var(--amber);
 }
 
 .composed-list,
@@ -563,6 +608,116 @@ footer {
   margin: 0;
 }
 
+.mixed-workspace-stage {
+  display: grid;
+  grid-template-columns: auto minmax(22rem, 1fr) auto;
+  gap: 0.8rem;
+  align-items: start;
+  padding: 1rem;
+}
+
+.mixed-workspace {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.mixed-item {
+  display: grid;
+  gap: 0.65rem;
+  padding: 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: var(--surface-2);
+}
+
+.mixed-item.active,
+.mixed-item:focus-within {
+  border-color: var(--accent-strong);
+  background: rgb(121 231 196 / 7%);
+}
+
+.mixed-item-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+}
+
+.mixed-item-heading > span:first-child {
+  display: grid;
+}
+
+.mixed-item-heading small {
+  color: var(--muted);
+}
+
+.mixed-contract {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  align-items: center;
+  justify-content: flex-end;
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+
+.mixed-nested-menu,
+.mixed-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.mixed-grid {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.mixed-grid [focusgrouprow] {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.4rem;
+}
+
+.mixed-grid [role="gridcell"] {
+  min-width: 0;
+}
+
+.mixed-grid button {
+  width: 100%;
+}
+
+.mixed-actions a {
+  display: inline-grid;
+  min-height: 2.1rem;
+  place-items: center;
+  padding: 0.35rem 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--surface-3);
+  text-decoration: none;
+  font-weight: 650;
+}
+
+.danger-action {
+  color: var(--danger);
+}
+
+.mixed-workspace-shell details {
+  border-top: 1px solid var(--line);
+}
+
+.mixed-workspace-shell summary {
+  padding: 0.65rem 1rem;
+  color: var(--accent);
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.mixed-workspace-shell details pre {
+  margin: 0 1rem 1rem;
+}
+
 @media (max-width: 760px) {
   .mode-stage {
     grid-template-columns: 1fr;
@@ -577,6 +732,15 @@ footer {
   }
 
   .composed-heading {
+    grid-template-columns: 1fr;
+  }
+
+  .composition-controls,
+  .live-placement-comparison {
+    grid-template-columns: 1fr;
+  }
+
+  .mixed-workspace-stage {
     grid-template-columns: 1fr;
   }
 

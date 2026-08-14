@@ -1,16 +1,15 @@
 'use strict';
 
-const modeDescriptions = {
+const MODE_DESCRIPTIONS = {
   native: 'With no itemcontrols attribute, authored focusability is unchanged.',
   'no-tab': 'Press Enter to enter. Tab loops inside; Escape returns to the item.',
   'tab-exit': 'Press Enter to enter. Tab from the final control leaves the item.',
   'tab-only': 'Tab enters and exits the item’s nested controls.',
-  inlinedirection: 'Inline-end enters nested controls; inline-start returns to the item.',
-  blockdirection: 'Block-end enters nested controls; block-start returns to the item.',
+  inlineentry: 'Inline-end enters nested content; inline-start returns to the item.',
+  blockentry: 'Block-end enters nested content; block-start returns to the item.',
 };
 
 const authoredTabIndex = new WeakMap();
-let currentMode = 'inlinedirection';
 
 function controlsFor(container) {
   return [...container.querySelectorAll(
@@ -47,55 +46,30 @@ function setItemcontrols(element, mode) {
 }
 
 function isClosedMode(mode) {
-  return ['no-tab', 'tab-exit', 'inlinedirection', 'blockdirection'].includes(mode);
+  return ['no-tab', 'tab-exit', 'inlineentry', 'blockentry'].includes(mode);
 }
 
 function entryKey(mode) {
   if (mode === 'no-tab' || mode === 'tab-exit') {
     return 'Enter';
   }
-  if (mode === 'inlinedirection') {
+  if (mode === 'inlineentry') {
     return 'ArrowRight';
   }
-  if (mode === 'blockdirection') {
+  if (mode === 'blockentry') {
     return 'ArrowDown';
   }
   return null;
 }
 
-function reverseDirectionKey(mode) {
-  return mode === 'inlinedirection' ? 'ArrowLeft'
-    : mode === 'blockdirection' ? 'ArrowUp'
-      : null;
-}
-
-function forwardDirectionKey(mode) {
-  return mode === 'inlinedirection' ? 'ArrowRight'
-    : mode === 'blockdirection' ? 'ArrowDown'
-      : null;
-}
-
-function sequentiallyFocusableElements() {
-  return [...document.querySelectorAll(
-    'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), summary, [tabindex]',
-  )].filter((element) => element.tabIndex >= 0 && element.getClientRects().length > 0);
-}
-
-function handleReverseItemcontrolsEntry(event) {
-  if (event.key !== 'Tab' || !event.shiftKey || event.ctrlKey || event.altKey || event.metaKey) {
-    return;
+function exitKey(mode) {
+  if (mode === 'inlineentry') {
+    return 'ArrowLeft';
   }
-
-  const order = sequentiallyFocusableElements();
-  const currentIndex = order.indexOf(document.activeElement);
-  const previous = currentIndex > 0 ? order[currentIndex - 1] : null;
-  const item = previous?.closest('[itemcontrols]');
-  if (!item || item === previous || item.contains(document.activeElement)) {
-    return;
+  if (mode === 'blockentry') {
+    return 'ArrowUp';
   }
-
-  event.preventDefault();
-  item.focus();
+  return null;
 }
 
 function openControls(item) {
@@ -111,71 +85,51 @@ function closeControls(item) {
   item.focus();
 }
 
-function handleManagedControlsKey(event, item, mode) {
+function handleNestedControlKey(event, item, mode) {
   const controls = controlsFor(item);
   const controlIndex = controls.indexOf(event.target);
   if (controlIndex === -1) {
     return false;
   }
-
   if (isClosedMode(mode) && event.key === 'Escape') {
     event.preventDefault();
     closeControls(item);
     return true;
   }
-
   if (mode === 'no-tab' && event.key === 'Tab') {
     event.preventDefault();
     const delta = event.shiftKey ? -1 : 1;
     controls[(controlIndex + delta + controls.length) % controls.length].focus();
     return true;
   }
-
-  const reverseKey = reverseDirectionKey(mode);
-  const forwardKey = forwardDirectionKey(mode);
-  if (!reverseKey || (event.key !== reverseKey && event.key !== forwardKey)) {
-    return false;
-  }
-
-  event.preventDefault();
-  if (event.key === reverseKey && controlIndex === 0) {
+  if (event.key === exitKey(mode)) {
+    event.preventDefault();
     closeControls(item);
     return true;
   }
-  const nextIndex = controlIndex + (event.key === forwardKey ? 1 : -1);
-  if (nextIndex >= 0 && nextIndex < controls.length) {
-    controls[nextIndex].focus();
+  return false;
+}
+
+function sequentiallyFocusableElements() {
+  return [...document.querySelectorAll(
+    'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), summary, [tabindex]',
+  )].filter((element) => element.tabIndex >= 0 && element.getClientRects().length > 0);
+}
+
+function handleReverseEntry(event) {
+  if (event.key !== 'Tab' || !event.shiftKey || event.ctrlKey || event.altKey || event.metaKey) {
+    return;
   }
-  return true;
-}
-
-function configureStandaloneCard(card, mode) {
-  setItemcontrols(card, mode);
-  const controlsAvailable = mode === 'native' || mode === 'tab-only';
-  controlsFor(card).forEach((control) => setTabEligible(control, controlsAvailable));
-  card.dataset.controlsOpen = String(controlsAvailable);
-}
-
-function installStandaloneCard(card) {
-  card.addEventListener('keydown', (event) => {
-    const mode = card.getAttribute('itemcontrols') || 'native';
-    if (event.target === card && event.key === entryKey(mode)) {
-      event.preventDefault();
-      openControls(card);
-      return;
-    }
-    handleManagedControlsKey(event, card, mode);
-  });
-
-  card.addEventListener('focusout', () => {
-    queueMicrotask(() => {
-      const mode = card.getAttribute('itemcontrols') || 'native';
-      if (isClosedMode(mode) && !card.contains(document.activeElement)) {
-        controlsFor(card).forEach((control) => setTabEligible(control, false));
-        card.dataset.controlsOpen = 'false';
-      }
-    });
-  });
+  const order = sequentiallyFocusableElements();
+  const currentIndex = order.indexOf(document.activeElement);
+  const previous = currentIndex > 0 ? order[currentIndex - 1] : null;
+  const item = previous?.closest('#mode-card, .menu-parent, [data-composed-item], [data-mixed-item]');
+  const controller = item?.hasAttribute('itemcontrols') ? item : item?.closest('[itemcontrols]');
+  if (!item || !controller || item === previous || item.contains(document.activeElement)) {
+    return;
+  }
+  event.preventDefault();
+  item.focus();
 }
 
 function attributeFragment(mode) {
@@ -190,332 +144,63 @@ function standaloneMarkup(mode) {
 </article>`;
 }
 
-function directionMarkup(mode, placement) {
-  const ownerAttribute = placement === 'owner' ? attributeFragment(mode) : '';
-  const itemAttribute = placement === 'item' ? attributeFragment(mode) : '';
-  return `<div focusgroup="menu block"${ownerAttribute}>
+function pairedMarkup(owner, item, mode) {
+  const itemAttribute = attributeFragment(mode);
+  const ownerAttribute = attributeFragment(mode);
+  if (owner === 'menu') {
+    return {
+      item: `<div focusgroup="menu block">
   <div tabindex="0"${itemAttribute}>
     Projects
-    <div focusgroup="menu block">
-      <button>Recent</button>
-      <button>Starred</button>
-      <button>Active</button>
-    </div>
+    <div focusgroup="menu block">…</div>
   </div>
-  <div tabindex="0"${itemAttribute}>…</div>
-</div>`;
-}
-
-function actionMarkup(mode, placement) {
-  const ownerAttribute = placement === 'owner' ? attributeFragment(mode) : '';
-  const itemAttribute = placement === 'item' ? attributeFragment(mode) : '';
-  return `<div focusgroup="toolbar block"${ownerAttribute}>
-  <div tabindex="0"${itemAttribute}>
-    Background
-    <span focusgroup="none">
-      <button>Hide</button>
-      <button>More</button>
-    </span>
+</div>`,
+      owner: `<div focusgroup="menu block"${ownerAttribute}>
+  <div tabindex="0">
+    Projects
+    <div focusgroup="menu block">…</div>
   </div>
-  <div tabindex="0"${itemAttribute}>…</div>
-</div>`;
-}
-
-function feedMarkup(mode, placement) {
-  const ownerAttribute = placement === 'owner' ? attributeFragment(mode) : '';
-  const itemAttribute = placement === 'item' ? attributeFragment(mode) : '';
-  return `<div focusgroup="feed"${ownerAttribute}>
-  <article tabindex="0"${itemAttribute}>
-    Post content
-    <span focusgroup="none">
-      <button>Like</button>
-      <button>Reply</button>
-    </span>
-  </article>
-  <article tabindex="0"${itemAttribute}>…</article>
-</div>`;
-}
-
-function gridMarkup(mode, placement) {
-  const ownerAttribute = placement === 'owner' ? attributeFragment(mode) : '';
-  const itemAttribute = placement === 'item' ? attributeFragment(mode) : '';
-  return `<div focusgroup="grid manual"${ownerAttribute}>
-  <div focusgrouprow>
-    <div tabindex="0"${itemAttribute}>
-      Design spec
-      <button focusgroup="none">Open</button>
-    </div>
-    <div tabindex="0"${itemAttribute}>…</div>
-  </div>
-</div>`;
-}
-
-function renderAllMarkup(mode) {
-  document.querySelector('#mode-markup').textContent = standaloneMarkup(mode);
-  document.querySelector('#direction-item-markup').textContent = directionMarkup(mode, 'item');
-  document.querySelector('#direction-owner-markup').textContent = directionMarkup(mode, 'owner');
-  document.querySelector('#layers-item-markup').textContent = actionMarkup(mode, 'item');
-  document.querySelector('#layers-owner-markup').textContent = actionMarkup(mode, 'owner');
-  document.querySelector('#feed-item-markup').textContent = feedMarkup(mode, 'item');
-  document.querySelector('#feed-owner-markup').textContent = feedMarkup(mode, 'owner');
-  document.querySelector('#grid-item-markup').textContent = gridMarkup(mode, 'item');
-  document.querySelector('#grid-owner-markup').textContent = gridMarkup(mode, 'owner');
-}
-
-function setupModeLab() {
-  const card = document.querySelector('#mode-card');
-  const log = document.querySelector('#mode-log');
-  installStandaloneCard(card);
-  document.querySelector('.mode-stage').addEventListener('focusin', (event) => {
-    const label = event.target === card
-      ? 'card boundary'
-      : event.target.textContent?.trim() || event.target.tagName.toLowerCase();
-    log.textContent = `Focus: ${label}`;
-  });
+</div>`,
+    };
+  }
+  const tag = owner === 'feed' ? 'article' : 'div';
+  const ownerValue = owner === 'toolbar' ? 'toolbar block' : owner === 'grid' ? 'grid manual' : 'feed';
+  const label = owner === 'feed' ? 'Post content' : owner === 'grid' ? 'Design spec' : 'Background';
+  const controls = owner === 'feed'
+    ? '<button focusgroup="none">Like</button>\n    <button focusgroup="none">Reply</button>'
+    : owner === 'toolbar'
+      ? '<button focusgroup="none">Hide</button>\n    <button focusgroup="none">More</button>'
+      : '<button focusgroup="none">Open</button>';
   return {
-    applyMode(mode) {
-      configureStandaloneCard(card, mode);
-      document.querySelector('#mode-instructions').textContent = modeDescriptions[mode];
-    },
+    item: `<div focusgroup="${ownerValue}">
+  <${tag} tabindex="0"${itemAttribute}>
+    ${label}
+    ${controls}
+  </${tag}>
+</div>`,
+    owner: `<div focusgroup="${ownerValue}"${ownerAttribute}>
+  <${tag} tabindex="0">
+    ${label}
+    ${controls}
+  </${tag}>
+</div>`,
   };
 }
 
-function setupDirectionMenu() {
-  const menu = document.querySelector('#cross-axis-menu');
-  const parents = [...menu.querySelectorAll('.menu-parent')];
-  const status = document.querySelector('#submenu-status');
-  let activeIndex = 0;
-
-  function configureParent(parent, active) {
-    setItemcontrols(parent, currentMode);
-    const controls = controlsFor(parent);
-    const sequentialEntry = active && (currentMode === 'native' || currentMode === 'tab-only');
-    controls.forEach((control, index) => setTabEligible(control, sequentialEntry && index === 0));
-    parent.dataset.controlsOpen = String(sequentialEntry);
-  }
-
-  function activate(index, moveFocus) {
-    activeIndex = index;
-    parents.forEach((parent, parentIndex) => {
-      const active = parentIndex === activeIndex;
-      parent.tabIndex = active ? 0 : -1;
-      parent.querySelector('.submenu-panel').hidden = !active;
-      configureParent(parent, active);
-    });
-    if (moveFocus) {
-      parents[activeIndex].focus();
-    }
-    status.textContent = `Parent: ${parents[activeIndex].querySelector('.menu-parent-label span').textContent}`;
-  }
-
-  menu.addEventListener('keydown', (event) => {
-    const parent = event.target.closest('.menu-parent');
-    const parentIndex = parents.indexOf(parent);
-    if (parentIndex === -1) {
-      return;
-    }
-
-    if (event.target === parent) {
-      if (event.key === entryKey(currentMode)) {
-        event.preventDefault();
-        const controls = controlsFor(parent);
-        controls.forEach((control, index) => {
-          rememberTabIndex(control);
-          control.tabIndex = index === 0 ? 0 : -1;
-        });
-        parent.dataset.controlsOpen = 'true';
-        controls[0]?.focus();
-        status.textContent = `Submenu entered: ${parent.querySelector('.menu-parent-label span').textContent}`;
-        return;
-      }
-      if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
-        event.preventDefault();
-        const delta = event.key === 'ArrowDown' ? 1 : -1;
-        activate((parentIndex + delta + parents.length) % parents.length, true);
-      }
-      return;
-    }
-
-    const nestedGroup = event.target.closest('[data-nested-focusgroup]');
-    const nestedItems = nestedGroup ? controlsFor(nestedGroup) : [];
-    const nestedIndex = nestedItems.indexOf(event.target);
-    if (nestedIndex === -1) {
-      return;
-    }
-
-    if (isClosedMode(currentMode) && event.key === 'Escape') {
-      event.preventDefault();
-      closeControls(parent);
-      status.textContent = `Returned to parent: ${parent.querySelector('.menu-parent-label span').textContent}`;
-      return;
-    }
-    if (currentMode === 'no-tab' && event.key === 'Tab') {
-      event.preventDefault();
-      const delta = event.shiftKey ? -1 : 1;
-      nestedItems[(nestedIndex + delta + nestedItems.length) % nestedItems.length].focus();
-      return;
-    }
-    if (currentMode === 'inlinedirection' && event.key === 'ArrowLeft') {
-      event.preventDefault();
-      closeControls(parent);
-      status.textContent = `Returned to parent: ${parent.querySelector('.menu-parent-label span').textContent}`;
-      return;
-    }
-    if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
-      if (currentMode === 'blockdirection' && event.key === 'ArrowUp' && nestedIndex === 0) {
-        event.preventDefault();
-        closeControls(parent);
-        status.textContent = `Returned to parent: ${parent.querySelector('.menu-parent-label span').textContent}`;
-        return;
-      }
-      const nextIndex = nestedIndex + (event.key === 'ArrowDown' ? 1 : -1);
-      if (nextIndex >= 0 && nextIndex < nestedItems.length) {
-        event.preventDefault();
-        nestedItems.forEach((item, index) => {
-          item.tabIndex = index === nextIndex ? 0 : -1;
-        });
-        nestedItems[nextIndex].focus();
-        status.textContent = `Nested focusgroup: ${nestedItems[nextIndex].textContent}`;
-      }
-    }
-  });
-
-  menu.addEventListener('focusout', (event) => {
-    const parent = event.target.closest('.menu-parent');
-    if (!parent) {
-      return;
-    }
-    queueMicrotask(() => {
-      if (isClosedMode(currentMode) && !parent.contains(document.activeElement)) {
-        configureParent(parent, parents.indexOf(parent) === activeIndex);
-      }
-    });
-  });
-
-  activate(0, false);
-  return {
-    applyMode(mode) {
-      currentMode = mode;
-      activate(activeIndex, false);
-    },
-  };
-}
-
-function setupComposedFocusgroup(owner) {
-  const items = [...owner.querySelectorAll('[data-composed-item]')];
-  const columns = Number(owner.dataset.columns || 1);
-  let activeIndex = 0;
-
-  function configureItem(item, active) {
-    setItemcontrols(item, currentMode);
-    const controlsAvailable = currentMode === 'native' || (currentMode === 'tab-only' && active);
-    controlsFor(item).forEach((control) => setTabEligible(control, controlsAvailable));
-    item.dataset.controlsOpen = String(controlsAvailable);
-    item.classList.toggle('active', active);
-  }
-
-  function activate(index, moveFocus) {
-    activeIndex = index;
-    items.forEach((item, itemIndex) => {
-      const active = itemIndex === activeIndex;
-      item.tabIndex = active ? 0 : -1;
-      configureItem(item, active);
-    });
-    if (moveFocus) {
-      items[activeIndex].focus();
-    }
-  }
-
-  owner.addEventListener('focusin', (event) => {
-    const item = event.target.closest('[data-composed-item]');
-    const index = items.indexOf(item);
-    if (index !== -1 && index !== activeIndex) {
-      activate(index, false);
-    }
-  });
-
-  owner.addEventListener('keydown', (event) => {
-    const activeItem = items[activeIndex];
-    if (event.target === activeItem && event.key === entryKey(currentMode)) {
-      event.preventDefault();
-      openControls(activeItem);
-      return;
-    }
-    if (activeItem.contains(event.target) && event.target !== activeItem
-        && handleManagedControlsKey(event, activeItem, currentMode)) {
-      return;
-    }
-    if (event.target !== activeItem) {
-      return;
-    }
-
-    let nextIndex = activeIndex;
-    if (columns > 1) {
-      if (event.key === 'ArrowLeft' && activeIndex % columns > 0) {
-        nextIndex -= 1;
-      } else if (event.key === 'ArrowRight' && activeIndex % columns < columns - 1) {
-        nextIndex += 1;
-      } else if (event.key === 'ArrowUp' && activeIndex >= columns) {
-        nextIndex -= columns;
-      } else if (event.key === 'ArrowDown' && activeIndex + columns < items.length) {
-        nextIndex += columns;
-      }
-    } else if (event.key === 'ArrowUp' && activeIndex > 0) {
-      nextIndex -= 1;
-    } else if (event.key === 'ArrowDown' && activeIndex < items.length - 1) {
-      nextIndex += 1;
-    }
-
-    if (nextIndex !== activeIndex) {
-      event.preventDefault();
-      activate(nextIndex, true);
-    }
-  });
-
-  owner.addEventListener('focusout', (event) => {
-    const item = event.target.closest('[data-composed-item]');
-    if (!item) {
-      return;
-    }
-    queueMicrotask(() => {
-      if (isClosedMode(currentMode) && !item.contains(document.activeElement)) {
-        configureItem(item, items.indexOf(item) === activeIndex);
-      }
-    });
-  });
-
-  activate(0, false);
-  return {
-    applyMode() {
-      activate(activeIndex, false);
-    },
-  };
-}
-
-function setupGlobalModeControl(components) {
-  const group = document.querySelector('[data-global-mode-options]');
+function setupChoiceGroup(group, onChange) {
   const options = [...group.querySelectorAll('[data-mode]')];
-
-  function apply(option) {
-    currentMode = option.dataset.mode;
+  function select(option) {
     options.forEach((candidate) => {
       const selected = candidate === option;
       candidate.setAttribute('aria-checked', String(selected));
       candidate.tabIndex = selected ? 0 : -1;
     });
-    components.forEach((component) => component.applyMode(currentMode));
-    document.querySelectorAll('[data-global-value-label]').forEach((label) => {
-      label.textContent = currentMode === 'native'
-        ? 'items: itemcontrols absent'
-        : `items: itemcontrols="${currentMode}"`;
-    });
-    renderAllMarkup(currentMode);
+    onChange(option.dataset.mode);
   }
-
   group.addEventListener('focusin', (event) => {
     const option = event.target.closest('[data-mode]');
     if (option) {
-      apply(option);
+      select(option);
     }
   });
   group.addEventListener('keydown', (event) => {
@@ -527,17 +212,326 @@ function setupGlobalModeControl(components) {
     const delta = event.key === 'ArrowRight' ? 1 : -1;
     options[(index + delta + options.length) % options.length].focus();
   });
+  select(options.find((option) => option.getAttribute('aria-checked') === 'true') || options[0]);
+}
 
-  apply(options.find((option) => option.getAttribute('aria-checked') === 'true') || options[0]);
+function setupStandalone() {
+  const card = document.querySelector('#mode-card');
+  const status = document.querySelector('#mode-log');
+  let mode = 'inlineentry';
+  card.addEventListener('keydown', (event) => {
+    if (event.target === card && event.key === entryKey(mode)) {
+      event.preventDefault();
+      openControls(card);
+      return;
+    }
+    handleNestedControlKey(event, card, mode);
+  });
+  card.addEventListener('focusout', () => {
+    setTimeout(() => {
+      if (isClosedMode(mode) && !card.contains(document.activeElement)) {
+        controlsFor(card).forEach((control) => setTabEligible(control, false));
+      }
+    });
+  });
+  document.querySelector('.mode-stage').addEventListener('focusin', (event) => {
+    status.textContent = `Focus: ${event.target === card ? 'card boundary' : event.target.textContent.trim()}`;
+  });
+  setupChoiceGroup(document.querySelector('[data-standalone-mode-options]'), (newMode) => {
+    mode = newMode;
+    setItemcontrols(card, mode);
+    const available = mode === 'native' || mode === 'tab-only';
+    controlsFor(card).forEach((control) => setTabEligible(control, available));
+    document.querySelector('#mode-instructions').textContent = MODE_DESCRIPTIONS[mode];
+    document.querySelector('#mode-markup').textContent = standaloneMarkup(mode);
+  });
+}
+
+function setupMenuFocusgroup(menu) {
+  const items = [...menu.querySelectorAll('.menu-parent')];
+  const status = menu.closest('.submenu-shell').querySelector('.status-line');
+  let mode = 'tab-only';
+  let activeIndex = 0;
+  function configure(item, active) {
+    setItemcontrols(item, mode);
+    const available = active && (mode === 'native' || mode === 'tab-only');
+    controlsFor(item).forEach((control, index) => setTabEligible(control, available && index === 0));
+  }
+  function activate(index, focus) {
+    activeIndex = index;
+    items.forEach((item, itemIndex) => {
+      const active = itemIndex === activeIndex;
+      item.tabIndex = active ? 0 : -1;
+      item.querySelector('.submenu-panel').hidden = !active;
+      configure(item, active);
+    });
+    if (focus) {
+      items[activeIndex].focus();
+    }
+    status.textContent = `Parent: ${items[activeIndex].querySelector('.menu-parent-label span').textContent}`;
+  }
+  menu.addEventListener('keydown', (event) => {
+    const item = event.target.closest('.menu-parent');
+    const index = items.indexOf(item);
+    if (index === -1) {
+      return;
+    }
+    if (event.target === item) {
+      if (event.key === entryKey(mode)) {
+        event.preventDefault();
+        openControls(item);
+      } else if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+        event.preventDefault();
+        activate((index + (event.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length, true);
+      }
+      return;
+    }
+    if (handleNestedControlKey(event, item, mode)) {
+      return;
+    }
+    const nested = event.target.closest('[data-nested-focusgroup]');
+    const nestedItems = nested ? controlsFor(nested) : [];
+    const nestedIndex = nestedItems.indexOf(event.target);
+    if (nestedIndex !== -1 && (event.key === 'ArrowUp' || event.key === 'ArrowDown')) {
+      event.preventDefault();
+      const next = nestedIndex + (event.key === 'ArrowDown' ? 1 : -1);
+      if (next >= 0 && next < nestedItems.length) {
+        nestedItems.forEach((control, controlIndex) => {
+          control.tabIndex = controlIndex === next ? 0 : -1;
+        });
+        nestedItems[next].focus();
+      }
+    }
+  });
+  activate(0, false);
+  return {
+    setMode(newMode) {
+      mode = newMode;
+      activate(activeIndex, false);
+    },
+  };
+}
+
+function setupLinearOrGrid(owner) {
+  const items = [...owner.querySelectorAll('[data-composed-item]')];
+  const columns = Number(owner.dataset.columns || 1);
+  let mode = 'tab-only';
+  let activeIndex = 0;
+  function configure(item, active) {
+    setItemcontrols(item, mode);
+    const available = mode === 'native' || (mode === 'tab-only' && active);
+    controlsFor(item).forEach((control) => setTabEligible(control, available));
+    item.classList.toggle('active', active);
+  }
+  function activate(index, focus) {
+    activeIndex = index;
+    items.forEach((item, itemIndex) => {
+      const active = itemIndex === activeIndex;
+      item.tabIndex = active ? 0 : -1;
+      configure(item, active);
+    });
+    if (focus) {
+      items[activeIndex].focus();
+    }
+  }
+  owner.addEventListener('focusin', (event) => {
+    const index = items.indexOf(event.target.closest('[data-composed-item]'));
+    if (index !== -1 && index !== activeIndex) {
+      activate(index, false);
+    }
+  });
+  owner.addEventListener('keydown', (event) => {
+    const item = items[activeIndex];
+    if (event.target === item && event.key === entryKey(mode)) {
+      event.preventDefault();
+      openControls(item);
+      return;
+    }
+    if (item.contains(event.target) && event.target !== item && handleNestedControlKey(event, item, mode)) {
+      return;
+    }
+    if (event.target !== item) {
+      return;
+    }
+    let next = activeIndex;
+    if (columns > 1) {
+      if (event.key === 'ArrowLeft' && activeIndex % columns > 0) next -= 1;
+      if (event.key === 'ArrowRight' && activeIndex % columns < columns - 1) next += 1;
+      if (event.key === 'ArrowUp' && activeIndex >= columns) next -= columns;
+      if (event.key === 'ArrowDown' && activeIndex + columns < items.length) next += columns;
+    } else {
+      if (event.key === 'ArrowUp' && activeIndex > 0) next -= 1;
+      if (event.key === 'ArrowDown' && activeIndex < items.length - 1) next += 1;
+    }
+    if (next !== activeIndex) {
+      event.preventDefault();
+      activate(next, true);
+    }
+  });
+  activate(0, false);
+  return {
+    setMode(newMode) {
+      mode = newMode;
+      activate(activeIndex, false);
+    },
+  };
+}
+
+function setupCompositionGallery() {
+  const menu = setupMenuFocusgroup(document.querySelector('[data-direction-menu]'));
+  const widgets = [...document.querySelectorAll('[data-composed-focusgroup]')].map(setupLinearOrGrid);
+  setupChoiceGroup(document.querySelector('[data-composed-mode-options]'), (mode) => {
+    menu.setMode(mode);
+    widgets.forEach((widget) => widget.setMode(mode));
+    document.querySelectorAll('[data-live-value-label]').forEach((label) => {
+      label.textContent = mode === 'native' ? 'itemcontrols absent' : `itemcontrols="${mode}"`;
+    });
+    const direction = pairedMarkup('menu', 'div', mode);
+    const action = pairedMarkup('toolbar', 'div', mode);
+    const feed = pairedMarkup('feed', 'article', mode);
+    const grid = pairedMarkup('grid', 'div', mode);
+    const conflicts = {
+      inlineentry: ['Grid cells'],
+      blockentry: ['Nested submenu', 'Action list', 'Feed', 'Grid cells'],
+    };
+    const conflictSet = new Set(conflicts[mode] || []);
+    document.querySelectorAll('.composed-demo').forEach((demo) => {
+      const name = demo.querySelector('.composed-heading > div > span').textContent;
+      demo.classList.toggle('axis-conflict', conflictSet.has(name));
+      let warning = demo.querySelector('.axis-conflict-note');
+      if (conflictSet.has(name)) {
+        if (!warning) {
+          warning = document.createElement('p');
+          warning.className = 'axis-conflict-note';
+          demo.querySelector('.composed-heading > div').append(warning);
+        }
+        warning.textContent = `${mode} conflicts with this focusgroup’s own directional axis.`;
+      } else {
+        warning?.remove();
+      }
+    });
+    document.querySelector('#direction-item-markup').textContent = direction.item;
+    document.querySelector('#direction-owner-markup').textContent = direction.owner;
+    document.querySelector('#layers-item-markup').textContent = action.item;
+    document.querySelector('#layers-owner-markup').textContent = action.owner;
+    document.querySelector('#feed-item-markup').textContent = feed.item;
+    document.querySelector('#feed-owner-markup').textContent = feed.owner;
+    document.querySelector('#grid-item-markup').textContent = grid.item;
+    document.querySelector('#grid-owner-markup').textContent = grid.owner;
+  });
+}
+
+function setupMixedWorkspace() {
+  const owner = document.querySelector('[data-mixed-workspace]');
+  const items = [...owner.querySelectorAll('[data-mixed-item]')];
+  const status = document.querySelector('#mixed-status');
+  let activeIndex = 0;
+  const modeFor = (item) => item.getAttribute('itemcontrols') || 'native';
+  function configure(item, active) {
+    const mode = modeFor(item);
+    const available = mode === 'native'
+      || (mode === 'tab-only' && active)
+      || (isClosedMode(mode) && active && item.dataset.controlsOpen === 'true');
+    controlsFor(item).forEach((control) => setTabEligible(control, available));
+    item.classList.toggle('active', active);
+  }
+  function activate(index, focus) {
+    activeIndex = index;
+    items.forEach((item, itemIndex) => {
+      const active = itemIndex === activeIndex;
+      item.tabIndex = active ? 0 : -1;
+      if (!active && isClosedMode(modeFor(item))) item.dataset.controlsOpen = 'false';
+      configure(item, active);
+    });
+    if (focus) items[activeIndex].focus();
+    status.textContent = `Active item: ${items[activeIndex].querySelector('strong').textContent}`;
+  }
+  owner.addEventListener('focusin', (event) => {
+    const index = items.indexOf(event.target.closest('[data-mixed-item]'));
+    if (index !== -1 && index !== activeIndex) activate(index, false);
+  });
+  owner.addEventListener('keydown', (event) => {
+    const item = items[activeIndex];
+    const mode = modeFor(item);
+    if (event.target === item) {
+      if (event.key === entryKey(mode)) {
+        event.preventDefault();
+        openControls(item);
+      } else if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+        event.preventDefault();
+        activate((activeIndex + (event.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length, true);
+      }
+      return;
+    }
+    if (!item.contains(event.target)) return;
+    const grid = event.target.closest('[data-mixed-grid]');
+    const gridItems = grid ? controlsFor(grid) : [];
+    const gridIndex = gridItems.indexOf(event.target);
+    if (gridIndex !== -1 && ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)) {
+      const columns = Number(grid.dataset.columns);
+      let next = gridIndex;
+      if (event.key === 'ArrowLeft' && gridIndex % columns > 0) next -= 1;
+      if (event.key === 'ArrowRight' && gridIndex % columns < columns - 1) next += 1;
+      if (event.key === 'ArrowUp' && gridIndex >= columns) next -= columns;
+      if (event.key === 'ArrowDown' && gridIndex + columns < gridItems.length) next += columns;
+      if (next !== gridIndex) {
+        event.preventDefault();
+        gridItems[next].focus();
+      }
+      return;
+    }
+    const nested = event.target.closest('[data-mixed-nested]');
+    const nestedItems = nested ? controlsFor(nested) : [];
+    const index = nestedItems.indexOf(event.target);
+    if (index !== -1 && event.key === 'Escape') {
+      event.preventDefault();
+      closeControls(item);
+      return;
+    }
+    if (index !== -1 && event.key === 'ArrowLeft' && index === 0) {
+      event.preventDefault();
+      closeControls(item);
+      return;
+    }
+    if (index !== -1 && (event.key === 'ArrowLeft' || event.key === 'ArrowRight')) {
+      event.preventDefault();
+      const next = index + (event.key === 'ArrowRight' ? 1 : -1);
+      if (next >= 0 && next < nestedItems.length) {
+        nestedItems.forEach((control, controlIndex) => {
+          control.tabIndex = controlIndex === next ? 0 : -1;
+        });
+        nestedItems[next].focus();
+      }
+      return;
+    }
+    handleNestedControlKey(event, item, mode);
+  });
+  owner.addEventListener('focusout', (event) => {
+    const item = event.target.closest('[data-mixed-item]');
+    if (!item) return;
+    setTimeout(() => {
+      if (isClosedMode(modeFor(item)) && !item.contains(document.activeElement)) {
+        item.dataset.controlsOpen = 'false';
+        configure(item, items.indexOf(item) === activeIndex);
+      }
+    });
+  });
+  owner.addEventListener('click', (event) => {
+    const toggle = event.target.closest('[aria-pressed]');
+    if (toggle) {
+      toggle.setAttribute('aria-pressed', String(toggle.getAttribute('aria-pressed') !== 'true'));
+    }
+  });
+  items.forEach((item) => {
+    item.dataset.controlsOpen = ['native', 'tab-only'].includes(modeFor(item)) ? 'true' : 'false';
+  });
+  activate(0, false);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  const components = [
-    setupModeLab(),
-    setupDirectionMenu(),
-    ...[...document.querySelectorAll('[data-composed-focusgroup]')].map(setupComposedFocusgroup),
-  ];
-  setupGlobalModeControl(components);
+  setupStandalone();
+  setupCompositionGallery();
+  setupMixedWorkspace();
 });
 
-document.addEventListener('keydown', handleReverseItemcontrolsEntry);
+document.addEventListener('keydown', handleReverseEntry);
